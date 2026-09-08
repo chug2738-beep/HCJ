@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>韓国 ソウル 3泊4日モデルコース</title>
+    <style>
+        :root {
+            --primary-color: #ff5a5f;
+            --secondary-color: #2c3e50;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #666666;
+            --border-radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            text-align: center;
+            padding: 40px 20px 30px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 15px rgba(255, 90, 95, 0.2);
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* --- QR 코드 스타일 추가 --- */
+        .qr-card {
+            background: #ffffff;
+            border: 2px dashed #ff7e5f;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .qr-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .qr-image {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            padding: 5px;
+            background: #fff;
+        }
+
+        .qr-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .hotel-card {
+            background: #fff5f5;
+            border: 1px solid #ffccd0;
+            border-radius: var(--border-radius);
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .hotel-card h3 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hotel-card h3::before {
+            content: "🏨";
+            margin-right: 6px;
+        }
+
+        .hotel-card p {
+            font-size: 0.92rem;
+            color: #444;
+        }
+
+        .hotel-subtext {
+            font-size: 0.82rem !important;
+            color: var(--text-muted) !important;
+            margin-top: 6px;
+        }
+
+        .day-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid #eaeaea;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .day-badge {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            margin-right: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .day-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .spot-item {
+            margin-bottom: 18px;
+        }
+
+        .spot-item:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .spot-name {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #1a252f;
+            display: flex;
+            align-items: center;
+        }
+
+        .spot-name::before {
+            content: "📍";
+            margin-right: 6px;
+            font-size: 0.9rem;
+        }
+
+        .spot-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            padding-left: 22px;
+        }
+
+        .food-box {
+            background: #fffcf5;
+            border-left: 4px solid #f39c12;
+            padding: 14px;
+            border-radius: 6px;
+            margin-top: 18px;
+            font-size: 0.9rem;
+        }
+
+        .food-box-title {
+            font-weight: bold;
+            color: #d35400;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .food-box-title::before {
+            content: "🍽️";
+            margin-right: 6px;
+        }
+
+        .food-list {
+            list-style: none;
+            padding-left: 6px;
+        }
+
+        .food-list li {
+            position: relative;
+            padding-left: 14px;
+            margin-bottom: 4px;
+            color: #444;
+        }
+
+        .food-list li::before {
+            content: "・";
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 36px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🇰🇷 ソウル満喫 3泊4日モデルコース</h1>
+    <p>ショッピング・K-BEAUTY・グルメ・伝統文化を巡る旅</p>
+</header>
+
+<div class="container">
+
+    <!-- QR 코드 카드 영역 -->
+    <div class="qr-card">
+        <div class="qr-title">📱 スマホでページを保存 (QRコード)</div>
+        <!-- 아래 src 경로에 QR코드 이미지 URL을 넣어주세요 -->
+        <img src="https://lh3.googleusercontent.com/d/14xfekMhKqvyEJZ8sgGgKNlPqvJSTHAz3" alt="QR Code" class="qr-image">
+        <p class="qr-desc">カメラで読み取って、旅行中にいつでも確認できます！</p>
+    </div>
+
+    <!-- 宿泊情報 -->
+    <div class="hotel-card">
+        <h3>おすすめ宿泊エリア：明洞（ミョンドン）</h3>
+        <p><strong>推奨ホテル：</strong>L7明洞 by LOTTE / ソノフェリチェ アンバサダー 明洞</p>
+        <p class="hotel-subtext">※日本語対応が可能なスタッフが多く、空港アクセスやショッピングに最適なエリアです。</p>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="day-section">
+        <div class="day-header">
+            <span class="day-badge">DAY 1</span>
+            <span class="day-title">到着 & 明洞ナイト散策</span>
+        </div>
+        
+        <div class="spot-item">
+            <div class="spot-name">明洞ショッピング街 & オリーブヤング</div>
+            <div class="spot-desc">最新のK-BEAUTYコスメをチェック！即時免税手続き（Tax Refund）に対応しています。</div>
+        </div>
+
+        <div class="spot-item">
+            <div class="spot-name">Nソウルタワー（南山タワー）</div>
+            <div class="spot-desc">ケーブルカーで展望台へ。ソウルの美しい夜景を一望できます。</div>
+        </div>
+
+        <div class="food-box">
+            <div class="food-box-title">DAY 1 グルメ</div>
+            <ul class="food-list">
+                <li>間食：明洞屋台グルメ（ケランパン、10ウォンパン、ヤンニョムチキン等）</li>
+                <li>夕食：明洞餃子（カルグクス＆マンドゥ）または 本格サムギョプサル</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="day-section">
+        <div class="day-header">
+            <span class="day-badge">DAY 2</span>
+            <span class="day-title">韓国の伝統文化 & レトロカフェ</span>
+        </div>
+        
+        <div class="spot-item">
+            <div class="spot-name">景福宮（キョンボックン）</div>
+            <div class="spot-desc">韓服（ハンボク）をレンタルして散策するのがおすすめ。王宮守衛の交代式も見どころです。</div>
+        </div>
+
+        <div class="spot-item">
+            <div class="spot-name">北村韓屋村（ブッチョン・ハノクマウル）</div>
+            <div class="spot-desc">伝統家屋（韓屋）が立ち並ぶ情緒溢れる街並み。写真映えスポットが多数あります。</div>
+        </div>
+
+        <div class="food-box">
+            <div class="food-box-title">DAY 2 グルメ</div>
+            <ul class="food-list">
+                <li>昼食：土俗村（トソッチョン）の参鶏湯（サムゲタン）</li>
+                <li>カフェ：益善洞（イクソンドン）의 韓屋リノベーションカフェ</li>
+                <li>夕食：東大門タッカンマリ横丁</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="day-section">
+        <div class="day-header">
+            <span class="day-badge">DAY 3</span>
+            <span class="day-title">トレンド発信地・聖水 & 現代ソウル</span>
+        </div>
+        
+        <div class="spot-item">
+            <div class="spot-name">聖水洞（ソンスドン）</div>
+            <div class="spot-desc">韓国MZ世代に大人気！ポップアップストアやおしゃれなアパレル・カフェが集結。</div>
+        </div>
+
+        <div class="spot-item">
+            <div class="spot-name">ザ・現代ソウル（The Hyundai Seoul）</div>
+            <div class="spot-desc">汝矣島（ヨイド）にあるソウル最大級の未来型ショッピングモール。</div>
+        </div>
+
+        <div class="food-box">
+            <div class="food-box-title">DAY 3 グルメ</div>
+            <ul class="food-list">
+                <li>昼食：聖水洞のトレンディなブランチやフュージョン韓食</li>
+                <li>夕食：漢江（ハンガン）公園でのチメク（チキン＆ビール）体験</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="day-section">
+        <div class="day-header">
+            <span class="day-badge">DAY 4</span>
+            <span class="day-title">弘大散策 & 帰国</span>
+        </div>
+        
+        <div class="spot-item">
+            <div class="spot-name">弘大（ホンデ）通り</div>
+            <div class="spot-desc">若者の街でファッションアイテムや雑貨のショッピング。空港鉄道（AREX）直通で移動もスムーズ。</div>
+        </div>
+
+        <div class="food-box">
+            <div class="food-box-title">DAY 4 グルメ</div>
+            <ul class="food-list">
+                <li>昼食：プデチゲ、トッポッキなどの軽食、またはカンジャンケジャン定食</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Have a wonderful trip to Korea! ✈️</p>
+</footer>
+
+</body>
+</html>
