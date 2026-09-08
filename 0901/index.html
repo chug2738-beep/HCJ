@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SeishunTravel - 일본 여행지 선정 설문</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;900&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#425a00",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#feb6c4",
+                        "outline-variant": "#c4c5d8",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#fbb3c1",
+                        "inverse-primary": "#b8c4ff",
+                        "tertiary-container": "#577400",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "surface": "#f4fafd",
+                        "on-primary-fixed": "#001355",
+                        "outline": "#747687",
+                        "on-primary-fixed-variant": "#0036bb",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#161d1f",
+                        "on-tertiary-fixed": "#151f00",
+                        "inverse-on-surface": "#ebf2f4",
+                        "surface-bright": "#f4fafd",
+                        "surface-tint": "#174cea",
+                        "primary-container": "#2d5af6",
+                        "on-secondary-fixed": "#360c19",
+                        "background": "#f4fafd",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#003fd7",
+                        "on-tertiary-fixed-variant": "#394d00",
+                        "surface-container-high": "#e2e9ec",
+                        "tertiary-fixed-dim": "#aed456",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e8eff1",
+                        "secondary": "#864e5a",
+                        "on-background": "#161d1f",
+                        "on-secondary-container": "#7a4450",
+                        "surface-container-highest": "#dde4e6",
+                        "surface-dim": "#d4dbdd",
+                        "on-tertiary-container": "#d3fa77",
+                        "on-secondary-fixed-variant": "#6b3743",
+                        "on-primary-container": "#e9ebff",
+                        "surface-container-low": "#eef5f7",
+                        "secondary-fixed": "#ffd9df",
+                        "primary-fixed": "#dde1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#dde4e6",
+                        "tertiary-fixed": "#c9f16f",
+                        "inverse-surface": "#2b3234"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "24px",
+                        "gutter": "24px",
+                        "stack-sm": "12px",
+                        "margin-desktop": "48px",
+                        "container-max": "1200px",
+                        "stack-lg": "48px",
+                        "margin-mobile": "16px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Be Vietnam Pro", "sans-serif"],
+                        "headline-xl": ["Be Vietnam Pro", "sans-serif"],
+                        "label-md": ["Be Vietnam Pro", "sans-serif"],
+                        "headline-lg-mobile": ["Be Vietnam Pro", "sans-serif"],
+                        "body-md": ["Noto Sans", "sans-serif"],
+                        "label-sm": ["Be Vietnam Pro", "sans-serif"],
+                        "body-lg": ["Noto Sans", "sans-serif"],
+                        "headline-lg": ["Be Vietnam Pro", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "headline-xl": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-shadow {
+            box-shadow: 0px 10px 30px rgba(45, 90, 246, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md items-center justify-center">
+<!-- Main Content -->
+<main class="w-full flex items-center justify-center py-stack-lg px-gutter">
+<div class="bg-surface-container-lowest rounded-xl custom-shadow max-w-[720px] w-full p-stack-md sm:p-margin-desktop relative overflow-hidden">
+<!-- Decorative Elements -->
+<div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Survey Header -->
+<div class="text-center mb-stack-lg relative z-10">
+<div class="text-headline-md font-headline-md font-black text-primary mb-6">SeishunTravel</div>
+<h1 class="font-headline-lg text-headline-lg md:hidden font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm">일본 여행지 선정</h1>
+<h1 class="hidden md:block font-headline-lg text-headline-lg text-on-surface mb-stack-sm">일본 여행지 선정</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">여러분의 완벽한 청춘 여행을 위한 첫 걸음입니다.</p>
+</div>
+<!-- Progress Bar -->
+<div class="mb-stack-md relative z-10">
+<div class="flex justify-between items-center mb-base">
+<span class="font-label-sm text-label-sm text-primary">기본 정보</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Step 1 of 1</span>
+</div>
+<div class="h-3 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary-container to-primary w-full rounded-full"></div>
+</div>
+</div>
+<!-- Form -->
+<form class="space-y-stack-sm relative z-10">
+<!-- Name Field -->
+<div class="relative">
+<input class="peer w-full h-14 bg-transparent text-on-surface font-body-md text-body-md border-2 border-outline-variant rounded-lg px-4 pt-4 pb-2 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all placeholder-transparent" id="name" name="name" placeholder="홍길동" required="" type="text"/>
+<label class="absolute left-4 top-2 text-on-surface-variant font-label-sm text-label-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-body-md peer-focus:top-2 peer-focus:text-label-sm peer-focus:text-primary" for="name">이름</label>
+</div>
+<!-- Contact Field -->
+<div class="relative">
+<input class="peer w-full h-14 bg-transparent text-on-surface font-body-md text-body-md border-2 border-outline-variant rounded-lg px-4 pt-4 pb-2 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all placeholder-transparent" id="phone" name="phone" placeholder="010-0000-0000" required="" type="tel"/>
+<label class="absolute left-4 top-2 text-on-surface-variant font-label-sm text-label-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-body-md peer-focus:top-2 peer-focus:text-label-sm peer-focus:text-primary" for="phone">연락처</label>
+</div>
+<!-- Destination Field -->
+<div class="relative group">
+<div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-on-surface-variant group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+<select class="peer w-full h-14 bg-transparent text-on-surface font-body-md text-body-md border-2 border-outline-variant rounded-lg px-4 pt-4 pb-2 appearance-none focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all pr-12" id="destination" name="destination" required=""><option disabled="" hidden="" selected="" value=""></option><option value="tokyo">1.도쿄</option><option value="osaka">2.오사카</option><option value="fukuoka">3.후쿠오카</option><option value="sapporo">4.삿포로</option><option value="kyoto">5.교토</option></select>
+<label class="absolute left-4 top-2 text-on-surface-variant font-label-sm text-label-sm transition-all peer-focus:text-primary" for="destination">가고 싶은 여행지</label>
+</div>
+<!-- Action Buttons -->
+<div class="pt-stack-md flex justify-end">
+<button class="bg-primary text-on-primary font-label-md text-label-md py-3 px-8 rounded-full hover:bg-on-primary-fixed-variant hover:scale-[1.02] active:translate-y-[2px] transition-all custom-shadow flex items-center gap-2" onclick="handleFormSubmit(this)" type="button">
+                        제출하기 <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</form>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for form inputs
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-[1.01]');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+    </script>
+<script>
+function handleFormSubmit(button) {
+    const form = button.closest('form');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const formData = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        destination: document.getElementById('destination').value
+    };
+
+    button.disabled = true;
+    button.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> 처리 중...';
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withSuccessHandler(() => {
+                showSuccessState(form);
+            })
+            .withFailureHandler((err) => {
+                alert('오류가 발생했습니다: ' + err);
+                button.disabled = false;
+                button.innerHTML = '제출하기 <span class="material-symbols-outlined text-sm">send</span>';
+            })
+            .submitData(formData);
+    } else {
+        // Fallback for local testing
+        console.log('Form Data:', formData);
+        setTimeout(() => showSuccessState(form), 500);
+    }
+}
+
+function showSuccessState(form) {
+    form.innerHTML = `<div class='text-center py-8 animate-in fade-in zoom-in duration-500'>
+        <div class='w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6'>
+            <span class='material-symbols-outlined text-4xl' style="font-variation-settings: 'FILL' 1;">check_circle</span>
+        </div>
+        <h2 class='text-headline-md font-headline-md text-on-surface mb-2'>입력되었습니다.</h2>
+        <p class='text-body-lg text-on-surface-variant'>여행날 봐요~</p>
+        <div class='mt-8'>
+            <button onclick='window.location.reload()' class='text-primary font-label-md hover:underline'>다시 작성하기</button>
+        </div>
+    </div>`;
+}
+</script></body></html>

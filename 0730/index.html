@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>추연승 (chu))</title>
+    <link rel="stylesheet" href="style/reset.css" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="src/img/favicon.png"
+    />
+  </head>
+  <body>
+    <main id="app">
+      <section class="section-intro">
+        <header id="header">
+          <h1 class="txt-invisible">Portfolio</h1>
+          <nav>
+            <ul class="nav-list">
+              <li><a href="#about" class="list-link">About</a></li>
+              <li><a href="#project" class="list-link">Project</a></li>
+              <li><a href="#contact" class="list-link">Contact</a></li>
+            </ul>
+          </nav>
+          <div class="bar-bg">
+            <span class="bar-ing"></span>
+          </div>
+        </header>
+
+        <div class="cont-intro">
+          <a name="info"></a>
+          <img src="src/img/profile.jpg" alt="프로필 이미지" />
+          <div>
+            <p class="txt-title"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-about">
+        <a name="about"></a>
+        <h2>About.</h2>
+        <div class="cont-about">
+          <div class="slide-container">
+            <div class="slide-album">
+              <div class="slide-images">
+                <img src="src/img/img-me-1.jpg" alt="내 사진" />
+              </div>
+            </div>
+          </div>
+          <div class="info-about">
+            <dl class="txt-about">
+              <div>
+                <dt>이름</dt>
+                <dd>추연승</dd>
+              </div>
+              <div>
+                <dt>생년월일</dt>
+                <dd>0X.07.01</dd>
+              </div>
+              <div>
+                <dt>거주지</dt>
+                <dd>부산 남구</dd>
+              </div>
+              <div>
+                <dt>학교/전공</dt>
+                <dd>경성대학교/기계자동차공학과</dd>
+              </div>
+            </dl>
+            <div class="btn-about">
+              <button class="btn-open" type="button">
+                <img src="src/img/icon-diary.png" alt="" />취미
+              </button>
+              <button class="btn-open" type="button">
+                <img src="src/img/icon-heart.png" alt="" />성격
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-project">
+        <a name="project"></a>
+        <h2>Project.</h2>
+        <article class="box-project">
+          <div>
+            <img
+              class="img-project"
+              src="src/img/project1.jpg"
+              alt="첫번째 프로젝트 이미지"
+            />
+          </div>
+          <div class="txt-project">
+            <h3>나의 팀활동 경험</h3>
+            <dl>
+              <dt>시기</dt>
+              <dd>2025.10</dd>
+              <dt>설명</dt>
+              <dd>경성대 자작차동아리 소속으로 대학생 자작차 경진대회 출전.</dd>
+              <dt>성과</dt>
+              <dd>준결승 진출</dd>
+            </dl>
+          </div>
+        </article>
+
+        <article class="box-project">
+          <div>
+            <img
+              class="img-project"
+              src="src/img/project2.jpg"
+              alt="두번째 프로젝트 이미지"
+            /> 
+          </div>
+          <div class="txt-project">
+            <h3>최근에 한 프로젝트</h3>
+            <dl>
+              <dt>기간</dt>
+              <dd>2026.07</dd>
+              <dt>설명</dt>
+              <dd>일본인들을 위한 부산관광 웹사이트 제작.</dd>
+              <dt>사용 기술</dt>
+              <dd>HTML/CSS, JavaScript</dd>
+            </dl>
+          </div>
+        </article>
+      </section>
+
+      <footer id="footer">
+        <a name="contact"></a>
+        <div class="box-footer">
+          <h2>Contact.</h2>
+          <ul class="link-sns">
+            <li>
+              <a href="https://github.com/chug2738-beep"
+                ><img
+                  class="img-github"
+                  src="src/img/icon-github.png"
+                  alt="깃허브 주소"
+                />github</a
+              >
+            </li>
+            <li>
+              <a href="mailto:chug2738@gmail.com">
+               <img
+                 class="img-email"
+                src="src/img/icon-email.png" 
+                alt="이메일 주소"
+               />Email
+             </a>
+            </li>
+          </ul>
+          <p>2026 추연승</p>
+        </div>
+      </footer>
+      <div class="modal-background">
+        <div class="modal">
+          <h3>취미</h3>
+          <h4>게임+뭔가 조립하기</h4>
+          <img src="src/img/img-hobby.jpg" alt="취미 이미지" />
+          <p>
+            저의 취미는 보통 게임 하는것을 즐기며,
+            건담,브릭등을 조립하는 것도 좋아합니다.
+          </p>
+          <button type="button" class="btn-close">Close</button>
+        </div>
+      </div>
+      <div class="modal-background">
+        <div class="modal">
+          <h3>성격</h3>
+          <h4>신중하며 인내심이 강함 </h4>
+          <img src="src/img/img-desk.jpg" alt="책상 이미지" />
+          <p>
+            저는 인내심과 정신력이 강하며,
+            저에게 주어진 일은 묵묵히 해내는 성격을 가졌습니다.
+          </p>
+          <button type="button" class="btn-close">Close</button>
+        </div>
+      </div>
+      <button onclick="moveToTop()" class="btn-moveTop"></button>
+      <script src="index.js"></script>
+    </main>
+  </body>
+</html>
