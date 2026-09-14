@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Doc Compressor - 스마트 문서 압축기</title>
+    <meta name="description" content="브라우저에서 안전하고 빠르게 PDF, PPT, DOC, HWP 문서를 압축하는 스마트 문서 최적화 솔루션">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f6ff',
+                            100: '#eceeff',
+                            500: '#5d5cde',
+                            600: '#4e4dc8',
+                            700: '#3e3da8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Pretendard', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-6 py-4 transition-all shadow-sm">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- 1. Left Logo with link to https://nanalab.kr -->
+            <a href="https://nanalab.kr" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-lg p-1" title="NanaLab 바로가기">
+                <img src="assets/img/logo.png" alt="NanaLab Logo" class="h-9 w-auto object-contain">
+            </a>
+
+            <!-- 2. Right App Title -->
+            <div class="text-lg md:text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                <span class="bg-brand-50 text-brand-600 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase border border-brand-100 hidden sm:inline-block">Tool</span>
+                <span>Smart Doc Compressor</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-10 flex flex-col items-center justify-start gap-8">
+        
+        <!-- Hero Section -->
+        <section class="text-center max-w-2xl space-y-3 pt-2">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Secure & Fast <span class="text-brand-500">Document Compression</span>
+            </h1>
+            <p class="text-slate-500 text-sm sm:text-base leading-relaxed">
+                모든 문서는 서버로 전송되지 않고 브라우저 내부에서 안전하게 압축 및 최적화 처리됩니다.
+            </p>
+        </section>
+
+        <!-- Upload Container -->
+        <section class="w-full bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 p-6 sm:p-10 transition-all">
+            
+            <!-- 3. 4. 5. Drop Zone & File Selection -->
+            <div id="drop-zone" class="drop-zone relative border-2 border-dashed border-slate-300 rounded-2xl p-8 sm:p-12 text-center transition-all duration-200 cursor-pointer bg-slate-50/60 hover:bg-brand-50/20 flex flex-col items-center justify-center gap-5">
+                
+                <!-- Native File Input -->
+                <input type="file" id="file-input" multiple accept=".pdf,.ppt,.pptx,.doc,.docx,.hwp,.hwpx,.jpg,.jpeg,.png,.webp,*" class="hidden">
+                
+                <div class="w-20 h-20 rounded-2xl bg-brand-50 text-brand-500 flex items-center justify-center shadow-inner pointer-events-none">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+                </div>
+
+                <div class="space-y-1 pointer-events-none">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Upload or Drop your file!</h2>
+                    <p class="text-xs sm:text-sm text-slate-500">문서를 마우스로 끌어다 놓거나 아래 버튼을 클릭하여 선택하세요</p>
+                </div>
+
+                <button type="button" id="upload-btn" class="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-semibold text-sm transition shadow-lg shadow-brand-500/25 cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>파일 선택</span>
+                </button>
+            </div>
+
+            <!-- 6. Supported File Formats Badge Grid (PDF, PPT, DOC, HWP) -->
+            <div class="mt-8 pt-6 border-t border-slate-100">
+                <div class="text-center mb-4">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">지원하는 파일 형식</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-4xl mx-auto">
+                    <!-- PDF -->
+                    <div class="format-card flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-rose-50/50 hover:border-rose-200 transition">
+                        <div class="w-10 h-10 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-bold text-slate-800">PDF</div>
+                            <div class="text-[11px] text-slate-500">.pdf 문서</div>
+                        </div>
+                    </div>
+
+                    <!-- PPT -->
+                    <div class="format-card flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-amber-50/50 hover:border-amber-200 transition">
+                        <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-file-powerpoint"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-bold text-slate-800">PPT / PPTX</div>
+                            <div class="text-[11px] text-slate-500">파워포인트</div>
+                        </div>
+                    </div>
+
+                    <!-- DOC -->
+                    <div class="format-card flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-blue-50/50 hover:border-blue-200 transition">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-file-word"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-bold text-slate-800">DOC / DOCX</div>
+                            <div class="text-[11px] text-slate-500">워드 문서</div>
+                        </div>
+                    </div>
+
+                    <!-- HWP -->
+                    <div class="format-card flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-emerald-50/50 hover:border-emerald-200 transition">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-bold text-slate-800">HWP / HWPX</div>
+                            <div class="text-[11px] text-slate-500">한글 문서</div>
+                        </div>
+                    </div>
+
+                    <!-- IMAGE -->
+                    <div class="format-card flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-purple-50/50 hover:border-purple-200 transition col-span-2 sm:col-span-1">
+                        <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-lg shrink-0">
+                            <i class="fa-solid fa-file-image"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-bold text-slate-800">IMAGE</div>
+                            <div class="text-[11px] text-slate-500">JPG, PNG, WebP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Processing Queue / File List -->
+            <div id="file-list-container" class="mt-8 pt-6 border-t border-slate-100" style="display: none;">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <span>작업 대기열</span>
+                        <span id="queue-count" class="bg-brand-50 text-brand-600 text-xs px-2.5 py-0.5 rounded-full font-bold border border-brand-100">0</span>
+                    </h3>
+                    <button type="button" id="clear-all-btn" class="text-xs text-slate-400 hover:text-rose-500 font-medium transition cursor-pointer">
+                        대기열 비우기
+                    </button>
+                </div>
+
+                <ul id="file-list" class="space-y-3">
+                    <!-- Dynamic File Items Inserted Here -->
+                </ul>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-200 py-6 text-center text-xs text-slate-400 bg-white">
+        <p>&copy; 2026 Smart Doc Compressor. All rights reserved. Client-side local document processing.</p>
+    </footer>
+
+    <!-- Libraries (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- App Script -->
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

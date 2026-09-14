@@ -1,0 +1,153 @@
+@charset "UTF-8";
+
+/* Smart Doc Compressor Custom Stylesheet */
+:root {
+    --brand-primary: #5d5cde;
+    --brand-secondary: #8786f0;
+    --brand-success: #10b981;
+    --brand-warning: #f59e0b;
+    --brand-danger: #ef4444;
+}
+
+/* Dropzone dragover dynamic state */
+.drop-zone {
+    transition: all 0.2s ease;
+}
+
+.drop-zone.dragover {
+    border-color: #5d5cde !important;
+    background-color: #f0f1ff !important;
+    transform: scale(1.01);
+    box-shadow: 0 0 0 4px rgba(93, 92, 222, 0.15);
+}
+
+/* Format Card Hover */
+.format-card {
+    transition: all 0.2s ease-in-out;
+}
+.format-card:hover {
+    transform: translateY(-2px);
+}
+
+/* File List Items */
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.file-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* File Icon Theming */
+.file-icon-wrapper {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.file-icon-wrapper.pdf {
+    background-color: #ffe4e6;
+    color: #e11d48;
+}
+
+.file-icon-wrapper.ppt {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.file-icon-wrapper.doc {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.file-icon-wrapper.hwp {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+.file-icon-wrapper.image {
+    background-color: #f3e8ff;
+    color: #9333ea;
+}
+
+.file-icon-wrapper.default {
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+/* Progress Track & Animated Bar */
+.progress-track {
+    width: 100%;
+    height: 0.5rem;
+    background-color: #f1f5f9;
+    border-radius: 9999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #5d5cde, #8786f0);
+    border-radius: 9999px;
+    transition: width 0.25s ease-out;
+}
+
+.progress-bar.completed {
+    background: linear-gradient(90deg, #10b981, #34d399) !important;
+}
+
+/* Download Button States */
+.download-btn {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transition: all 0.2s ease-in-out;
+}
+
+.download-btn.ready {
+    opacity: 1 !important;
+    cursor: pointer !important;
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+}
+
+.download-btn.ready:hover {
+    background-color: #059669 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45) !important;
+}
+
+.download-btn.ready:active {
+    transform: translateY(0);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s ease-out forwards;
+}
