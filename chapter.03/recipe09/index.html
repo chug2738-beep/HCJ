@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart GIF Studio - Free GIF Editor</title>
+    <!-- GIF Processing Libraries via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+    <style>
+        /* Base Reset & Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .header .logo-link img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .privacy-note {
+            font-size: 0.95rem;
+            color: #059669;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
+        }
+
+        /* Dropzone Section */
+        .dropzone {
+            border: 2px dashed #3b82f6;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            background-color: #eff6ff;
+            border-color: #2563eb;
+        }
+
+        .dropzone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dropzone-text {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: #3b82f6;
+            color: #ffffff;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-download {
+            background-color: #10b981;
+        }
+
+        .btn-download:hover {
+            background-color: #059669;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .btn-go {
+            background-color: #8b5cf6;
+            color: white;
+        }
+
+        .btn-go:hover {
+            background-color: #7c3aed;
+        }
+
+        .icon-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #4b5563;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .icon-toggle-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Editor Workspace Section */
+        .editor-workspace {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Layout Columns */
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 769px) {
+            .editor-workspace {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .left-column {
+                flex: 1.1;
+            }
+            .editor-panel-container {
+                flex: 0.9;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .editor-workspace {
+                flex-direction: column;
+            }
+            .left-column, .editor-panel-container {
+                width: 100%;
+            }
+        }
+
+        .workspace-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            color: #1f2937;
+        }
+
+        /* GIF Preview Box */
+        .gif-preview-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .gif-preview-box img {
+            max-width: 100%;
+            max-height: 480px;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #f3f4f6;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        /* Tools Grid Layout */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 0.5rem;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #374151;
+            font-size: 0.85rem;
+            font-weight: 600;
+            gap: 0.5rem;
+        }
+
+        .tool-btn:hover {
+            border-color: #3b82f6;
+            color: #2563eb;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .tool-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Resize Tool Specific Panel */
+        .tool-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .dimension-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background-color: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #f3f4f6;
+        }
+
+        .control-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .dimension-input {
+            width: 80px;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .range-slider {
+            flex: 1;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            outline: none;
+            accent-color: #3b82f6;
+        }
+
+        /* Lock Connector Divider */
+        .lock-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: -0.25rem 0;
+        }
+
+        .lock-btn {
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 2;
+        }
+
+        .lock-btn:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .lock-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: #4b5563;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .lock-btn.locked svg {
+            stroke: #2563eb;
+        }
+
+        .panel-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 10px;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #8b5cf6;
+            transition: width 0.1s ease;
+        }
+
+        .processing-status {
+            font-size: 0.85rem;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        /* Utility Class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <a href="https://nanalab.kr" class="logo-link" target="_blank" rel="noopener noreferrer">
+            <img src="logo.png" alt="Nanalab Logo" id="logo-img">
+        </a>
+        <div class="brand-title">Smart GIF Studio</div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <!-- Hero & Upload Section -->
+        <section id="hero-section" class="hero-section">
+            <h1 class="main-title">Free GIF Editor</h1>
+            <p class="subtitle">
+                Edit GIF files for free! Enjoy various features like resizing, downscaling, cropping, and FPS adjustment—all completely free!
+            </p>
+            <p class="privacy-note">
+                🔒 All data is processed locally in your browser. Since no data is transmitted externally, you can use it safely without worrying about data leaks.
+            </p>
+
+            <div id="dropzone" class="dropzone">
+                <div class="dropzone-content">
+                    <p class="dropzone-text">Drag and drop a GIF file here</p>
+                    <span style="color: #9ca3af; font-size: 0.875rem;">or</span>
+                    <input type="file" id="file-input" accept="image/gif" class="hidden">
+                    <button type="button" id="browse-btn" class="btn">Choose File</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Editor Section -->
+        <section id="editor-section" class="editor-workspace hidden">
+            
+            <!-- Left Column (Original GIF + Resized GIF) -->
+            <div class="left-column">
+                
+                <!-- Original GIF Panel -->
+                <div id="original-card" class="workspace-card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <button type="button" id="toggle-original-btn" class="icon-toggle-btn" title="Toggle Panel">▼</button>
+                            <h2>Original GIF</h2>
+                        </div>
+                        <a id="download-btn" class="btn btn-download" download="original.gif">
+                            📥 Download
+                        </a>
+                    </div>
+
+                    <div id="original-card-body">
+                        <div class="gif-preview-box">
+                            <img id="gif-preview" src="" alt="Original GIF Preview">
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">File Size</span>
+                                <span id="info-size" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Resolution</span>
+                                <span id="info-resolution" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Frame Rate</span>
+                                <span id="info-fps" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Total Frames</span>
+                                <span id="info-frames" class="info-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resized GIF Panel (Hidden initially) -->
+                <div id="resized-card" class="workspace-card hidden">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <button type="button" id="toggle-resized-btn" class="icon-toggle-btn">▼</button>
+                            <h2>Resized GIF</h2>
+                        </div>
+                        <a id="resized-download-btn" class="btn btn-download" download="Resized_output.gif">
+                            📥 Download
+                        </a>
+                    </div>
+
+                    <div id="resized-card-body">
+                        <div class="gif-preview-box">
+                            <img id="resized-gif-preview" src="" alt="Resized GIF Preview">
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">File Size</span>
+                                <span id="resized-info-size" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Resolution</span>
+                                <span id="resized-info-resolution" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Frame Rate</span>
+                                <span id="resized-info-fps" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Total Frames</span>
+                                <span id="resized-info-frames" class="info-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Editor Tools Panel Container -->
+            <div class="editor-panel-container workspace-card">
+                <div class="card-header">
+                    <h2 id="panel-title">Editor Tools</h2>
+                    <button type="button" id="reset-btn" class="btn btn-outline">
+                        📁 Choose Another File
+                    </button>
+                </div>
+
+                <!-- 1. Default Tools Grid View -->
+                <div id="tools-grid" class="tools-grid">
+                    <button type="button" class="tool-btn" data-tool="resize">
+                        <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                        <span>Resize</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="crop">
+                        <svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"></path><path d="M18 22V8a2 2 0 0 0-2-2H2"></path></svg>
+                        <span>Crop</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="downsizing">
+                        <svg viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                        <span>Downsizing</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="convert">
+                        <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                        <span>Format Convert</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="rotate">
+                        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                        <span>Rotate</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="optimize">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        <span>Optimize</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="reverse">
+                        <svg viewBox="0 0 24 24"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                        <span>Reverse</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="speed">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Speed</span>
+                    </button>
+                    <button type="button" class="tool-btn" data-tool="cut">
+                        <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.47" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+                        <span>Cut</span>
+                    </button>
+                </div>
+
+                <!-- 2. Resize Tool Specific Panel -->
+                <div id="resize-panel" class="tool-panel hidden">
+                    <div class="dimension-controls">
+                        <!-- X-Axis Control -->
+                        <div class="control-row">
+                            <div class="control-label-row">
+                                <span class="control-label">X-Axis (Width)</span>
+                                <div><input type="number" id="resize-x-input" class="dimension-input"> px</div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="resize-x-slider" class="range-slider">
+                            </div>
+                        </div>
+
+                        <!-- Aspect Ratio Lock Icon -->
+                        <div class="lock-divider">
+                            <button type="button" id="lock-btn" class="lock-btn locked" title="Toggle Aspect Ratio Lock">
+                                <!-- Locked SVG Icon -->
+                                <svg id="lock-icon-locked" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                <!-- Unlocked SVG Icon -->
+                                <svg id="lock-icon-unlocked" viewBox="0 0 24 24" class="hidden"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                            </button>
+                        </div>
+
+                        <!-- Y-Axis Control -->
+                        <div class="control-row">
+                            <div class="control-label-row">
+                                <span class="control-label">Y-Axis (Height)</span>
+                                <div><input type="number" id="resize-y-input" class="dimension-input"> px</div>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" id="resize-y-slider" class="range-slider">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Status & Progress -->
+                    <div id="resize-progress-container" class="hidden">
+                        <div class="progress-bar-container">
+                            <div id="resize-progress-bar" class="progress-bar"></div>
+                        </div>
+                        <div id="resize-status" class="processing-status">Resizing GIF...</div>
+                    </div>
+
+                    <!-- Panel Action Buttons -->
+                    <div class="panel-actions">
+                        <button type="button" id="resize-back-btn" class="btn btn-outline">‹ Back</button>
+                        <button type="button" id="resize-go-btn" class="btn btn-go">Go! ›</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup gif.js Worker Script Blob to avoid CORS issues
+            let gifWorkerUrl = null;
+            fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')
+                .then(r => r.text())
+                .then(text => {
+                    const blob = new Blob([text], { type: 'application/javascript' });
+                    gifWorkerUrl = URL.createObjectURL(blob);
+                }).catch(err => console.error('Worker Blob Error:', err));
+
+            // DOM Elements
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('file-input');
+            const browseBtn = document.getElementById('browse-btn');
+            
+            const heroSection = document.getElementById('hero-section');
+            const editorSection = document.getElementById('editor-section');
+            const gifPreview = document.getElementById('gif-preview');
+            const downloadBtn = document.getElementById('download-btn');
+            const resetBtn = document.getElementById('reset-btn');
+
+            // Left Cards & Toggle Buttons
+            const originalCard = document.getElementById('original-card');
+            const originalCardBody = document.getElementById('original-card-body');
+            const toggleOriginalBtn = document.getElementById('toggle-original-btn');
+
+            const resizedCard = document.getElementById('resized-card');
+            const resizedCardBody = document.getElementById('resized-card-body');
+            const toggleResizedBtn = document.getElementById('toggle-resized-btn');
+            const resizedGifPreview = document.getElementById('resized-gif-preview');
+            const resizedDownloadBtn = document.getElementById('resized-download-btn');
+
+            // Panel Switcher Elements
+            const panelTitle = document.getElementById('panel-title');
+            const toolsGrid = document.getElementById('tools-grid');
+            const resizePanel = document.getElementById('resize-panel');
+
+            // Resize Tool Controls
+            const resizeXInput = document.getElementById('resize-x-input');
+            const resizeXSlider = document.getElementById('resize-x-slider');
+            const resizeYInput = document.getElementById('resize-y-input');
+            const resizeYSlider = document.getElementById('resize-y-slider');
+            const lockBtn = document.getElementById('lock-btn');
+            const lockIconLocked = document.getElementById('lock-icon-locked');
+            const lockIconUnlocked = document.getElementById('lock-icon-unlocked');
+            const resizeBackBtn = document.getElementById('resize-back-btn');
+            const resizeGoBtn = document.getElementById('resize-go-btn');
+            const resizeProgressContainer = document.getElementById('resize-progress-container');
+            const resizeProgressBar = document.getElementById('resize-progress-bar');
+            const resizeStatus = document.getElementById('resize-status');
+
+            // Original Metadata
+            const infoSize = document.getElementById('info-size');
+            const infoResolution = document.getElementById('info-resolution');
+            const infoFps = document.getElementById('info-fps');
+            const infoFrames = document.getElementById('info-frames');
+
+            // Resized Metadata
+            const resizedInfoSize = document.getElementById('resized-info-size');
+            const resizedInfoResolution = document.getElementById('resized-info-resolution');
+            const resizedInfoFps = document.getElementById('resized-info-fps');
+            const resizedInfoFrames = document.getElementById('resized-info-frames');
+
+            // State variables
+            let originalFile = null;
+            let currentObjectUrl = null;
+            let originalWidth = 0;
+            let originalHeight = 0;
+            let originalFrameCount = 0;
+            let originalFps = 10;
+            let isLocked = true;
+            let aspectRatio = 1;
+            let originalArrayBuffer = null;
+
+            // Logo Fallback
+            const logoImg = document.getElementById('logo-img');
+            logoImg.onerror = () => { logoImg.style.display = 'none'; };
+
+            // Panel Collapse Toggle Listeners
+            toggleOriginalBtn.addEventListener('click', () => {
+                const isHidden = originalCardBody.classList.toggle('hidden');
+                toggleOriginalBtn.textContent = isHidden ? '▶' : '▼';
+            });
+
+            toggleResizedBtn.addEventListener('click', () => {
+                const isHidden = resizedCardBody.classList.toggle('hidden');
+                toggleResizedBtn.textContent = isHidden ? '▶' : '▼';
+            });
+
+            // Upload Handling
+            browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+            dropzone.addEventListener('click', () => { fileInput.click(); });
+
+            ['dragenter', 'dragover'].forEach(n => dropzone.addEventListener(n, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); }));
+            ['dragleave', 'drop'].forEach(n => dropzone.addEventListener(n, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
+
+            dropzone.addEventListener('drop', (e) => {
+                if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === 'image/gif') {
+                    handleGifUpload(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0 && e.target.files[0].type === 'image/gif') {
+                    handleGifUpload(e.target.files[0]);
+                }
+            });
+
+            async function handleGifUpload(file) {
+                originalFile = file;
+                if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+
+                currentObjectUrl = URL.createObjectURL(file);
+                gifPreview.src = currentObjectUrl;
+                downloadBtn.href = currentObjectUrl;
+                downloadBtn.download = file.name || 'original.gif';
+
+                infoSize.textContent = formatBytes(file.size);
+
+                // Load image dimensions
+                await new Promise((resolve) => {
+                    gifPreview.onload = () => {
+                        originalWidth = gifPreview.naturalWidth;
+                        originalHeight = gifPreview.naturalHeight;
+                        aspectRatio = originalWidth / originalHeight;
+                        infoResolution.textContent = `${originalWidth} x ${originalHeight} px`;
+                        resolve();
+                    };
+                });
+
+                // Parse GIF Binary
+                try {
+                    originalArrayBuffer = await file.arrayBuffer();
+                    const metadata = parseGifBinary(originalArrayBuffer);
+                    originalFrameCount = metadata.frameCount;
+                    originalFps = metadata.fps;
+
+                    infoFrames.textContent = `${originalFrameCount} frames`;
+                    infoFps.textContent = `${originalFps} FPS`;
+                } catch (e) {
+                    console.error('Metadata parsing error:', e);
+                }
+
+                // Setup Resize Slider Limits
+                setupResizeControls();
+
+                // Switch View
+                heroSection.classList.add('hidden');
+                editorSection.classList.remove('hidden');
+            }
+
+            // Setup Resize Sliders Limits (Min 5%, Max 300%)
+            function setupResizeControls() {
+                const minX = Math.max(1, Math.round(originalWidth * 0.05));
+                const maxX = Math.round(originalWidth * 3.00);
+                const minY = Math.max(1, Math.round(originalHeight * 0.05));
+                const maxY = Math.round(originalHeight * 3.00);
+
+                resizeXSlider.min = minX;
+                resizeXSlider.max = maxX;
+                resizeXSlider.value = originalWidth;
+                resizeXInput.value = originalWidth;
+
+                resizeYSlider.min = minY;
+                resizeYSlider.max = maxY;
+                resizeYSlider.value = originalHeight;
+                resizeYInput.value = originalHeight;
+
+                isLocked = true;
+                updateLockUI();
+            }
+
+            // Lock Toggle Logic
+            lockBtn.addEventListener('click', () => {
+                isLocked = !isLocked;
+                if (isLocked) {
+                    aspectRatio = parseFloat(resizeXInput.value) / parseFloat(resizeYInput.value);
+                }
+                updateLockUI();
+            });
+
+            function updateLockUI() {
+                if (isLocked) {
+                    lockBtn.classList.add('locked');
+                    lockIconLocked.classList.remove('hidden');
+                    lockIconUnlocked.classList.add('hidden');
+                } else {
+                    lockBtn.classList.remove('locked');
+                    lockIconLocked.classList.add('hidden');
+                    lockIconUnlocked.classList.remove('hidden');
+                }
+            }
+
+            // Slider & Input Linkage
+            resizeXSlider.addEventListener('input', (e) => updateXValue(parseInt(e.target.value)));
+            resizeXInput.addEventListener('change', (e) => updateXValue(parseInt(e.target.value)));
+
+            resizeYSlider.addEventListener('input', (e) => updateYValue(parseInt(e.target.value)));
+            resizeYInput.addEventListener('change', (e) => updateYValue(parseInt(e.target.value)));
+
+            function updateXValue(val) {
+                val = Math.max(resizeXSlider.min, Math.min(resizeXSlider.max, val || originalWidth));
+                resizeXSlider.value = val;
+                resizeXInput.value = val;
+
+                if (isLocked) {
+                    const calculatedY = Math.round(val / aspectRatio);
+                    resizeYSlider.value = calculatedY;
+                    resizeYInput.value = calculatedY;
+                }
+            }
+
+            function updateYValue(val) {
+                val = Math.max(resizeYSlider.min, Math.min(resizeYSlider.max, val || originalHeight));
+                resizeYSlider.value = val;
+                resizeYInput.value = val;
+
+                if (isLocked) {
+                    const calculatedX = Math.round(val * aspectRatio);
+                    resizeXSlider.value = calculatedX;
+                    resizeXInput.value = calculatedX;
+                }
+            }
+
+            // Tool Selection Switch
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tool = btn.dataset.tool;
+                    if (tool === 'resize') {
+                        panelTitle.textContent = 'Resize GIF';
+                        toolsGrid.classList.add('hidden');
+                        resizePanel.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Back Button Click
+            resizeBackBtn.addEventListener('click', () => {
+                panelTitle.textContent = 'Editor Tools';
+                resizePanel.classList.add('hidden');
+                toolsGrid.classList.remove('hidden');
+            });
+
+            // <Go!> Resize Execution
+            resizeGoBtn.addEventListener('click', async () => {
+                const targetW = parseInt(resizeXInput.value);
+                const targetH = parseInt(resizeYInput.value);
+
+                // 1. Collapse Original GIF Panel
+                originalCardBody.classList.add('hidden');
+                toggleOriginalBtn.textContent = '▶';
+
+                // 2. Show Progress Bar
+                resizeProgressContainer.classList.remove('hidden');
+                resizeGoBtn.disabled = true;
+                resizeBackBtn.disabled = true;
+                resizeProgressBar.style.width = '0%';
+                resizeStatus.textContent = 'Parsing GIF frames...';
+
+                try {
+                    // Execute Client-side Frame Resizing
+                    const resizedBlob = await processGifResize(originalArrayBuffer, targetW, targetH, (percent) => {
+                        resizeProgressBar.style.width = `${percent}%`;
+                        resizeStatus.textContent = `Processing: ${percent}%`;
+                    });
+
+                    // Render Resized GIF Result
+                    const resizedUrl = URL.createObjectURL(resizedBlob);
+                    resizedGifPreview.src = resizedUrl;
+
+                    const originalName = originalFile ? originalFile.name : 'image.gif';
+                    resizedDownloadBtn.href = resizedUrl;
+                    resizedDownloadBtn.download = `Resized_${originalName}`;
+
+                    // Update Resized Info
+                    resizedInfoSize.textContent = formatBytes(resizedBlob.size);
+                    resizedInfoResolution.textContent = `${targetW} x ${targetH} px`;
+                    resizedInfoFps.textContent = `${originalFps} FPS`;
+                    resizedInfoFrames.textContent = `${originalFrameCount} frames`;
+
+                    // Show Resized Panel
+                    resizedCard.classList.remove('hidden');
+                    resizedCardBody.classList.remove('hidden');
+                    toggleResizedBtn.textContent = '▼';
+
+                } catch (err) {
+                    console.error('Resize Error:', err);
+                    alert('An error occurred while resizing the GIF.');
+                } finally {
+                    resizeProgressContainer.classList.add('hidden');
+                    resizeGoBtn.disabled = false;
+                    resizeBackBtn.disabled = false;
+                }
+            });
+
+            // Frame-by-Frame GIF Resize Engine
+            function processGifResize(arrayBuffer, targetWidth, targetHeight, onProgress) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const byteArray = new Uint8Array(arrayBuffer);
+                        const gr = new Omggif(byteArray);
+                        const numFrames = gr.numFrames();
+
+                        // Canvas buffers
+                        const origCanvas = document.createElement('canvas');
+                        origCanvas.width = gr.width;
+                        origCanvas.height = gr.height;
+                        const origCtx = origCanvas.getContext('2d');
+                        const origImgData = origCtx.createImageData(gr.width, gr.height);
+
+                        const targetCanvas = document.createElement('canvas');
+                        targetCanvas.width = targetWidth;
+                        targetCanvas.height = targetHeight;
+                        const targetCtx = targetCanvas.getContext('2d');
+
+                        // GIF Encoder Setup
+                        const gif = new GIF({
+                            workers: 2,
+                            quality: 10,
+                            width: targetWidth,
+                            height: targetHeight,
+                            workerScript: gifWorkerUrl
+                        });
+
+                        // Temp buffer canvas for cumulative frame rendering
+                        const frameCanvas = document.createElement('canvas');
+                        frameCanvas.width = gr.width;
+                        frameCanvas.height = gr.height;
+                        const frameCtx = frameCanvas.getContext('2d');
+
+                        for (let i = 0; i < numFrames; i++) {
+                            const info = gr.frameInfo(i);
+                            gr.decodeAndBlitFrameRGBA(i, origImgData.data);
+                            
+                            origCtx.putImageData(origImgData, 0, 0);
+                            frameCtx.drawImage(origCanvas, 0, 0);
+
+                            // Resize frame to target dimensions
+                            targetCtx.clearRect(0, 0, targetWidth, targetHeight);
+                            targetCtx.drawImage(frameCanvas, 0, 0, gr.width, gr.height, 0, 0, targetWidth, targetHeight);
+
+                            const delayMs = info.delay * 10 || 100;
+                            gif.addFrame(targetCtx, { copy: true, delay: delayMs });
+                        }
+
+                        gif.on('progress', (p) => {
+                            if (onProgress) onProgress(Math.round(p * 100));
+                        });
+
+                        gif.on('finished', (blob) => {
+                            resolve(blob);
+                        });
+
+                        gif.render();
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            }
+
+            // GIF Binary Parser
+            function parseGifBinary(arrayBuffer) {
+                const bytes = new Uint8Array(arrayBuffer);
+                if (bytes.length < 13) return { frameCount: 1, fps: 10 };
+
+                let pos = 13;
+                if ((bytes[10] & 0x80) !== 0) pos += 3 * Math.pow(2, (bytes[10] & 0x07) + 1);
+
+                let frameCount = 0;
+                let totalDelayCentiseconds = 0;
+
+                while (pos < bytes.length) {
+                    const blockType = bytes[pos];
+                    if (blockType === 0x3B) break;
+
+                    if (blockType === 0x21) {
+                        if (bytes[pos + 1] === 0xF9) {
+                            frameCount++;
+                            const delay = bytes[pos + 4] | (bytes[pos + 5] << 8);
+                            totalDelayCentiseconds += (delay > 0 ? delay : 10);
+                            pos += 8;
+                        } else {
+                            pos += 2;
+                            while (pos < bytes.length && bytes[pos] !== 0) pos += bytes[pos] + 1;
+                            pos++;
+                        }
+                    } else if (blockType === 0x2C) {
+                        pos += 10;
+                        if ((bytes[pos - 1] & 0x80) !== 0) pos += 3 * Math.pow(2, (bytes[pos - 1] & 0x07) + 1);
+                        pos++;
+                        while (pos < bytes.length && bytes[pos] !== 0) pos += bytes[pos] + 1;
+                        pos++;
+                    } else pos++;
+                }
+
+                frameCount = frameCount || 1;
+                const avgDelay = totalDelayCentiseconds / frameCount;
+                return { frameCount, fps: parseFloat((avgDelay > 0 ? 100 / avgDelay : 10).toFixed(1)) };
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Reset Everything (Choose Another File)
+            resetBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                gifPreview.src = '';
+                resizedGifPreview.src = '';
+                if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+
+                // Reset Cards
+                originalCardBody.classList.remove('hidden');
+                toggleOriginalBtn.textContent = '▼';
+                resizedCard.classList.add('hidden');
+
+                // Reset Panels
+                panelTitle.textContent = 'Editor Tools';
+                resizePanel.classList.add('hidden');
+                toolsGrid.classList.remove('hidden');
+
+                // Reset Main Layout
+                editorSection.classList.add('hidden');
+                heroSection.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

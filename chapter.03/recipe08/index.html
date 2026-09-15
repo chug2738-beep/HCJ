@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to GIF - NanaLab</title>
+    <meta name="description" content="브라우저에서 비디오를 29FPS 프레임 슬라이싱하여 GIF 애니메이션으로 즉시 변환하는 웹 애플리케이션">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Noto Sans KR', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Inline Core Styles for guaranteed rendering -->
+    <style>
+        .checkerboard-bg {
+            background-image: linear-gradient(45deg, #f1f5f9 25%, transparent 25%),
+                              linear-gradient(-45deg, #f1f5f9 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #f1f5f9 75%),
+                              linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+        }
+
+        .shimmer-progress {
+            background-size: 200% 100%;
+            animation: shimmerMove 1.8s infinite linear;
+        }
+
+        @keyframes shimmerMove {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-purple-50/20 to-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- 1. Top Navigation Header -->
+    <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- Left Logo with link to https://nanalab.kr -->
+            <a href="https://nanalab.kr" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 transition-transform hover:scale-105" title="NanaLab 공식 웹사이트 방문">
+                <img src="logo.png" alt="NanaLab Logo" class="h-8 sm:h-9 w-auto object-contain">
+            </a>
+
+            <!-- 2. Right App Title -->
+            <div class="flex items-center gap-2.5">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse"></span>
+                    29 FPS Converter
+                </span>
+                <span class="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    video to GIF
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
+        
+        <!-- 3 & 4. Hero Section -->
+        <section class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-slate-200 shadow-sm text-slate-600 mb-4">
+                <i class="fa-solid fa-bolt text-purple-600"></i>
+                초고속 29FPS 프레임 추출 & 클라이언트 사이드 변환
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
+                video<span class="text-purple-600 mx-1">→</span>GIF
+            </h1>
+            <p class="text-base sm:text-lg text-slate-600 font-medium mb-1">
+                Make your own GIF Animation!
+            </p>
+            <p class="text-xs sm:text-sm text-slate-400">
+                서버 전송 없이 브라우저 내에서 안전하게 동영상을 고품질 GIF 애니메이션으로 변환합니다.
+            </p>
+        </section>
+
+        <!-- 5. Central Drag and Drop Upload Card -->
+        <section class="mb-10">
+            <div class="w-full bg-white rounded-3xl border-2 border-dashed border-purple-200 hover:border-purple-500 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-purple-100/50 p-8 sm:p-12 flex flex-col items-center justify-center text-center cursor-pointer group bg-gradient-to-b from-purple-50/20 to-white" id="drop-zone">
+                <div class="w-20 h-20 rounded-2xl bg-purple-50 group-hover:bg-purple-600 text-purple-600 group-hover:text-white flex items-center justify-center text-3xl shadow-sm group-hover:shadow-lg group-hover:shadow-purple-200 transition-all duration-300 mb-5 group-hover:-translate-y-1">
+                    <i class="fa-solid fa-file-video transition-transform duration-300 group-hover:scale-110"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-1.5">
+                    동영상 파일을 여기에 드래그 앤 드롭하세요
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 mb-6 max-w-sm">
+                    MP4, WebM, MOV 등 비디오 파일을 끌어다 놓거나 아래 버튼을 눌러 직접 선택할 수 있습니다.
+                </p>
+                <button type="button" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-sm shadow-md hover:shadow-purple-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer" id="upload-btn">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    동영상 파일 선택하기
+                </button>
+                <input type="file" id="file-input" accept="video/*" multiple class="hidden">
+            </div>
+        </section>
+
+        <!-- 6. File List Section -->
+        <section class="hidden bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8" id="list-section">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-base sm:text-lg">변환 대기열 및 목록</h3>
+                </div>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100" id="queue-counter">
+                    0개 파일
+                </span>
+            </div>
+
+            <!-- Dynamic File Items Container -->
+            <div class="flex flex-col gap-4" id="file-list">
+                <!-- Items are added here dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Action Banner -->
+    <a href="https://nanalab.kr" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-900/90 backdrop-blur-md text-white font-semibold text-xs shadow-lg hover:bg-slate-900 hover:scale-105 transition-all z-40 border border-slate-700" title="NanaLab 바로가기">
+        <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+        <span>NanaLab 공식 플랫폼</span>
+        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+    </a>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-400 mt-auto">
+        <div class="max-w-5xl mx-auto px-4">
+            <p>&copy; 2026 NanaLab. All rights reserved. 29FPS Video to GIF Converter.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Image Resizer - 스마트 이미지 리사이저</title>
+    <meta name="description" content="브라우저에서 안전하게 종횡비를 변환하고 패딩(Padding) 및 크롭(Crop)을 적용하는 고성능 스마트 이미지 리사이징 툴">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3'
+                        },
+                        accent: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Noto Sans KR', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS File -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Inline Fallback & Keyframe Styles -->
+    <style>
+        .checkerboard-bg {
+            background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+                              linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+                              linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+        }
+
+        .shimmer-bar {
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 9999px; }
+    </style>
+
+    <!-- Core Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/20 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- 1. Left Logo with link to https://nanalab.kr -->
+            <a href="https://nanalab.kr" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 transition-transform hover:scale-105" title="NanaLab 공식 웹사이트 방문">
+                <img src="assets/img/logo.png" alt="NanaLab Logo" class="h-8 sm:h-9 w-auto object-contain">
+            </a>
+
+            <!-- 2. Right Service Title -->
+            <div class="flex items-center gap-2.5">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+                    Safe Local Processing
+                </span>
+                <h1 class="text-base sm:text-lg font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 bg-clip-text text-transparent">
+                    Smart Image Resizer
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
+        
+        <!-- Hero Section -->
+        <section class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-slate-200 shadow-sm text-slate-600 mb-3">
+                <i class="fa-solid fa-shield-halved text-indigo-600"></i>
+                서버 전송 없는 안전한 100% 브라우저 로컬 리사이징
+            </div>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+                Secure & Smart Image Resizing
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto font-normal">
+                종횡비(1:1, 3:4, 4:3, 9:16, 16:9, 커스텀)에 맞춰 여백을 채우는 <strong class="text-indigo-600 font-semibold">Padding</strong> 또는 중심을 잘라내는 <strong class="text-indigo-600 font-semibold">Crop</strong> 방식을 스마트하게 변환합니다.
+            </p>
+        </section>
+
+        <!-- Work Area Grid: Upload & Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-stretch">
+            
+            <!-- Left: Drop & Upload Card (5 Cols) -->
+            <div class="lg:col-span-6 flex">
+                <section class="w-full bg-white rounded-2xl border-2 border-dashed border-indigo-200 hover:border-indigo-500 transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-indigo-100/50 p-8 flex flex-col items-center justify-center text-center cursor-pointer group relative overflow-hidden bg-gradient-to-b from-indigo-50/20 to-white" id="drop-zone">
+                    <div class="w-20 h-20 rounded-2xl bg-indigo-50 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center text-3xl shadow-sm group-hover:shadow-lg group-hover:shadow-indigo-200 transition-all duration-300 mb-4 group-hover:-translate-y-1">
+                        <i class="fa-solid fa-cloud-arrow-up transition-transform duration-300 group-hover:scale-110"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">
+                        사진 파일을 여기에 드래그 앤 드롭하세요
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-5 max-w-xs">
+                        JPG, PNG, WebP 등 여러 장의 이미지를 한 번에 끌어다 놓거나 선택할 수 있습니다.
+                    </p>
+                    <button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-sm shadow-md hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer" id="file-select-btn">
+                        <i class="fa-solid fa-folder-open"></i>
+                        파일 선택하기
+                    </button>
+                    <input type="file" id="file-input" multiple accept="image/*" class="hidden">
+                </section>
+            </div>
+
+            <!-- Right: Settings Panel Card (7 Cols) -->
+            <div class="lg:col-span-6 flex">
+                <section class="w-full bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-7 flex flex-col justify-between gap-5" id="controls-section">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-indigo-600"></i>
+                            <h3 class="font-bold text-slate-800 text-base">리사이즈 옵션 설정</h3>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            실시간 자동 반영
+                        </span>
+                    </div>
+
+                    <!-- 1. Aspect Ratio -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-vector-square text-indigo-500"></i>
+                            캔버스 종횡비 (Aspect Ratio)
+                        </label>
+                        <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="ratio-options">
+                            <button type="button" class="ratio-btn active py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-indigo-600 bg-indigo-600 text-white shadow-sm transition-all text-center" data-ratio="1:1">1:1</button>
+                            <button type="button" class="ratio-btn py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-ratio="3:4">3:4</button>
+                            <button type="button" class="ratio-btn py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-ratio="4:3">4:3</button>
+                            <button type="button" class="ratio-btn py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-ratio="9:16">9:16</button>
+                            <button type="button" class="ratio-btn py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-ratio="16:9">16:9</button>
+                            <button type="button" class="ratio-btn py-2 px-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" id="custom-ratio-btn">Custom</button>
+                        </div>
+                        <div class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3 animate-fadeIn" id="custom-ratio-container">
+                            <span class="text-xs font-semibold text-slate-600">커스텀 비율:</span>
+                            <input type="number" id="custom-width" placeholder="W" min="1" max="9999" class="w-20 px-2.5 py-1.5 text-xs text-center font-semibold bg-white rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <span class="font-bold text-slate-400">:</span>
+                            <input type="number" id="custom-height" placeholder="H" min="1" max="9999" class="w-20 px-2.5 py-1.5 text-xs text-center font-semibold bg-white rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- 2. Resize Mode -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-crop-simple text-indigo-500"></i>
+                            변환 모드 (Resize Mode)
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="radio-card active relative border-2 border-indigo-600 bg-indigo-50/50 rounded-xl p-3 flex items-start gap-3 cursor-pointer transition-all">
+                                <input type="radio" name="resize-mode" value="padding" checked class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Padding (여백 유지)</span>
+                                    <span class="text-xs text-slate-500">원본 왜곡 없이 여백을 채웁니다.</span>
+                                </div>
+                            </label>
+                            <label class="radio-card relative border-2 border-slate-200 hover:border-slate-300 bg-white rounded-xl p-3 flex items-start gap-3 cursor-pointer transition-all">
+                                <input type="radio" name="resize-mode" value="crop" class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Crop (중앙 자르기)</span>
+                                    <span class="text-xs text-slate-500">캔버스 비율에 맞게 사진을 잘라냅니다.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 3. Background Color (Padding Only) -->
+                    <div class="flex flex-col gap-2" id="bg-color-control">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-palette text-indigo-500"></i>
+                            여백 배경색 (Background Color)
+                        </label>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <input type="color" id="bg-color-input" value="#ffffff" class="w-8 h-8 rounded-full cursor-pointer border border-slate-300 shadow-sm">
+                                <span id="bg-color-hex" class="text-xs font-mono font-bold text-slate-700 bg-white px-2 py-1 rounded-md border border-slate-200">#FFFFFF</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" class="preset-color-btn active w-6 h-6 rounded-full border-2 border-indigo-600 shadow-sm hover:scale-110 transition-transform" data-color="#ffffff" style="background-color: #ffffff;" title="화이트"></button>
+                                <button type="button" class="preset-color-btn w-6 h-6 rounded-full border border-slate-300 shadow-sm hover:scale-110 transition-transform" data-color="#000000" style="background-color: #000000;" title="블랙"></button>
+                                <button type="button" class="preset-color-btn w-6 h-6 rounded-full border border-slate-300 shadow-sm hover:scale-110 transition-transform" data-color="#f1f5f9" style="background-color: #f1f5f9;" title="라이트 그레이"></button>
+                                <button type="button" class="preset-color-btn w-6 h-6 rounded-full border border-slate-300 shadow-sm hover:scale-110 transition-transform" data-color="#334155" style="background-color: #334155;" title="슬레이트"></button>
+                                <button type="button" class="preset-color-btn w-6 h-6 rounded-full border border-slate-300 shadow-sm hover:scale-110 transition-transform" data-color="#faf5ef" style="background-color: #faf5ef;" title="웜 베이지"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Long Side Resolution -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-maximize text-indigo-500"></i>
+                            출력 해상도 (Long Axis)
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="size-options">
+                            <button type="button" class="size-btn active py-2 px-2 text-xs font-semibold rounded-xl border border-indigo-600 bg-indigo-600 text-white shadow-sm transition-all text-center" data-size="origin">Origin (원본)</button>
+                            <button type="button" class="size-btn py-2 px-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-size="800">800px</button>
+                            <button type="button" class="size-btn py-2 px-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-size="1200">1200px</button>
+                            <button type="button" class="size-btn py-2 px-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" data-size="1600">1600px</button>
+                            <button type="button" class="size-btn py-2 px-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:text-indigo-600 text-slate-700 transition-all text-center" id="custom-size-btn">Custom</button>
+                        </div>
+                        <div class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 animate-fadeIn" id="custom-size-container">
+                            <input type="number" id="custom-long-side" placeholder="긴 축 기준 픽셀 입력 (예: 1080)" min="100" max="10000" class="w-full px-3 py-1.5 text-xs font-semibold bg-white rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+        <!-- Task Queue & Results Section -->
+        <section class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sm:p-7 transition-all duration-300" id="results-section">
+            
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-5 border-b border-slate-100 gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">작업 대기열 및 변환 결과</h3>
+                        <p class="text-xs text-slate-500" id="results-counter">총 0개 파일 로드됨</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                    <button type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm transition-all" id="reprocess-btn">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        다시 변환하기
+                    </button>
+                    <button type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-md hover:shadow-emerald-200 hover:-translate-y-0.5 transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none" id="download-all-btn" disabled>
+                        <i class="fa-solid fa-file-zipper"></i>
+                        일괄 다운로드 (ZIP)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Image List Container -->
+            <div class="flex flex-col gap-3.5" id="image-list">
+                <!-- Dynamically injected items -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-400 mt-auto">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>&copy; 2026 NanaLab. All rights reserved. 100% Client-side Secure Image Processing.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
