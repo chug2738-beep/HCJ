@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 웹 오디오 스튜디오 & 에디터</title>
+    <!-- lamejs CDN (MP3 인코딩 라이브러리) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 720px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #c084fc;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed #a855f7;
+            background-color: rgba(168, 85, 247, 0.05);
+            border-radius: 14px;
+            padding: 35px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover {
+            border-color: #c084fc;
+            background-color: rgba(168, 85, 247, 0.1);
+        }
+
+        .drop-zone p {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e9d5ff;
+            margin-top: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Editor Section */
+        .editor-section {
+            display: none;
+            margin-top: 25px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* Waveform Canvas */
+        .canvas-container {
+            position: relative;
+            background-color: #0f172a;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 120px;
+        }
+
+        /* Player Controls */
+        .player-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-play {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-play:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Tool Panels */
+        .tool-card {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .tool-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .range-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .btn-tool {
+            background-color: #334155;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-tool:hover {
+            background-color: #475569;
+        }
+
+        /* Export Button */
+        .btn-export {
+            width: 100%;
+            padding: 14px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-export:hover {
+            background-color: #059669;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎵 웹 오디오 스튜디오 & 에디터</h1>
+        <p class="subtitle">오디오 구간 자르기, 볼륨 조절 및 포맷 변환(MP3 / WAV)</p>
+
+        <!-- 업로드 영역 -->
+        <div class="drop-zone" id="dropZone">
+            <div style="font-size: 2.5rem;">🎧</div>
+            <p id="fileNameDisplay">오디오 파일 선택 또는 드래그</p>
+            <span style="color:#94a3b8; font-size:0.8rem; margin-top:5px; display:block;">지원 포맷: .mp3, .wav, .ogg, .m4a 등</span>
+            <input type="file" id="fileInput" accept="audio/*">
+        </div>
+
+        <!-- 에디터 영역 -->
+        <div class="editor-section" id="editorSection">
+            <!-- 파형 표현 -->
+            <div class="canvas-container">
+                <canvas id="waveformCanvas" width="650" height="120"></canvas>
+            </div>
+
+            <!-- 재생 컨트롤 -->
+            <div class="player-controls">
+                <button class="btn-play" id="playBtn">▶️ 재생</button>
+                <button class="btn-play" id="stopBtn" style="background-color: #ef4444;">⏹️ 정지</button>
+            </div>
+
+            <!-- 1. Trim (구간 자르기) -->
+            <div class="tool-card">
+                <div class="tool-title">✂️ 1. 구간 자르기 (Trim)</div>
+                <div class="range-grid">
+                    <div>
+                        <label for="trimStart">시작 시간 (초)</label>
+                        <input type="number" id="trimStart" value="0" min="0" step="0.1">
+                    </div>
+                    <div>
+                        <label for="trimEnd">종료 시간 (초)</label>
+                        <input type="number" id="trimEnd" value="0" min="0" step="0.1">
+                    </div>
+                </div>
+                <button class="btn-tool" id="applyTrimBtn">선택 구간만 남기고 자르기</button>
+            </div>
+
+            <!-- 2. Volume (볼륨 조절) -->
+            <div class="tool-card">
+                <div class="tool-title">🔊 2. 볼륨 조절</div>
+                <label for="volumeSlider">볼륨 크기: <span id="volumeVal">100%</span></label>
+                <input type="range" id="volumeSlider" min="0" max="200" value="100" step="5">
+                <button class="btn-tool" id="applyVolumeBtn">볼륨 적용하기</button>
+            </div>
+
+            <!-- 3. Format Conversion (포맷 변환 및 저장) -->
+            <div class="tool-card">
+                <div class="tool-title">🔄 3. 포맷 변환 및 파일 저장</div>
+                <label for="formatSelect">변환할 포맷 선택</label>
+                <select id="formatSelect">
+                    <option value="wav">WAV (무손실 오디오)</option>
+                    <option value="mp3">MP3 (압축 오디오)</option>
+                </select>
+            </div>
+
+            <button class="btn-export" id="exportBtn">💾 편집된 오디오 파일 다운로드</button>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const editorSection = document.getElementById('editorSection');
+        const canvas = document.getElementById('waveformCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const trimStart = document.getElementById('trimStart');
+        const trimEnd = document.getElementById('trimEnd');
+        const applyTrimBtn = document.getElementById('applyTrimBtn');
+
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeVal = document.getElementById('volumeVal');
+        const applyVolumeBtn = document.getElementById('applyVolumeBtn');
+
+        const formatSelect = document.getElementById('formatSelect');
+        const exportBtn = document.getElementById('exportBtn');
+
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let currentAudioBuffer = null;
+        let sourceNode = null;
+        let isPlaying = false;
+        let startTime = 0;
+
+        // 드래그 앤 드롭
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) loadAudio(e.target.files[0]);
+        });
+
+        async function loadAudio(file) {
+            fileNameDisplay.textContent = `🎵 ${file.name}`;
+            const arrayBuffer = await file.arrayBuffer();
+            currentAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            
+            // UI 초기화
+            trimStart.value = 0;
+            trimEnd.value = currentAudioBuffer.duration.toFixed(1);
+            trimEnd.max = currentAudioBuffer.duration.toFixed(1);
+            volumeSlider.value = 100;
+            volumeVal.textContent = "100%";
+
+            drawWaveform(currentAudioBuffer);
+            editorSection.style.display = 'block';
+        }
+
+        // 파형 그리기
+        function drawWaveform(buffer) {
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            const data = buffer.getChannelData(0);
+            const step = Math.ceil(data.length / width);
+            const amp = height / 2;
+
+            ctx.fillStyle = '#c084fc';
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                for (let j = 0; j < step; j++) {
+                    const datum = data[(i * step) + j];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+            }
+        }
+
+        // 재생 & 정지
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) return;
+            sourceNode = audioCtx.createBufferSource();
+            sourceNode.buffer = currentAudioBuffer;
+            sourceNode.connect(audioCtx.destination);
+            sourceNode.start(0);
+            isPlaying = true;
+
+            sourceNode.onended = () => { isPlaying = false; };
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (sourceNode && isPlaying) {
+                sourceNode.stop();
+                isPlaying = false;
+            }
+        });
+
+        // 1. Trim 적용
+        applyTrimBtn.addEventListener('click', () => {
+            if (!currentAudioBuffer) return;
+
+            const start = parseFloat(trimStart.value);
+            const end = parseFloat(trimEnd.value);
+
+            if (start >= end || end > currentAudioBuffer.duration) {
+                alert('올바른 시작 및 종료 시간을 입력하세요.');
+                return;
+            }
+
+            const sampleRate = currentAudioBuffer.sampleRate;
+            const startSample = Math.floor(start * sampleRate);
+            const endSample = Math.floor(end * sampleRate);
+            const newLength = endSample - startSample;
+
+            const trimmedBuffer = audioCtx.createBuffer(
+                currentAudioBuffer.numberOfChannels,
+                newLength,
+                sampleRate
+            );
+
+            for (let i = 0; i < currentAudioBuffer.numberOfChannels; i++) {
+                const channelData = currentAudioBuffer.getChannelData(i);
+                const trimmedData = trimmedBuffer.getChannelData(i);
+                for (let j = 0; j < newLength; j++) {
+                    trimmedData[j] = channelData[startSample + j];
+                }
+            }
+
+            currentAudioBuffer = trimmedBuffer;
+            trimStart.value = 0;
+            trimEnd.value = currentAudioBuffer.duration.toFixed(1);
+            drawWaveform(currentAudioBuffer);
+            alert('자르기가 완료되었습니다!');
+        });
+
+        // 2. 볼륨 조절
+        volumeSlider.addEventListener('input', () => {
+            volumeVal.textContent = `${volumeSlider.value}%`;
+        });
+
+        applyVolumeBtn.addEventListener('click', () => {
+            if (!currentAudioBuffer) return;
+            const factor = parseFloat(volumeSlider.value) / 100;
+
+            for (let i = 0; i < currentAudioBuffer.numberOfChannels; i++) {
+                const channelData = currentAudioBuffer.getChannelData(i);
+                for (let j = 0; j < channelData.length; j++) {
+                    channelData[j] *= factor;
+                }
+            }
+
+            drawWaveform(currentAudioBuffer);
+            alert('볼륨이 조정되었습니다!');
+        });
+
+        // 3. 파일 다운로드 (WAV / MP3 변환)
+        exportBtn.addEventListener('click', () => {
+            if (!currentAudioBuffer) return;
+
+            const format = formatSelect.value;
+            let blob = null;
+
+            if (format === 'wav') {
+                blob = bufferToWavBlob(currentAudioBuffer);
+            } else if (format === 'mp3') {
+                blob = bufferToMp3Blob(currentAudioBuffer);
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `edited_audio_${Date.now()}.${format}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // WAV 인코더
+        function bufferToWavBlob(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length * numChannels * 2 + 44;
+            const out = new DataView(new ArrayBuffer(length));
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            }
+
+            writeString(out, 0, 'RIFF');
+            out.setUint32(4, length - 8, true);
+            writeString(out, 8, 'WAVE');
+            writeString(out, 12, 'fmt ');
+            out.setUint32(16, 16, true);
+            out.setUint16(20, 1, true);
+            out.setUint16(22, numChannels, true);
+            out.setUint32(24, sampleRate, true);
+            out.setUint32(28, sampleRate * numChannels * 2, true);
+            out.setUint16(32, numChannels * 2, true);
+            out.setUint16(34, 16, true);
+            writeString(out, 36, 'data');
+            out.setUint32(40, length - 44, true);
+
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    let sample = buffer.getChannelData(ch)[i];
+                    sample = Math.max(-1, Math.min(1, sample));
+                    out.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            return new Blob([out], { type: 'audio/wav' });
+        }
+
+        // MP3 인코더 (lamejs 사용)
+        function bufferToMp3Blob(buffer) {
+            const channels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, 128);
+            const mp3Data = [];
+
+            const left = buffer.getChannelData(0);
+            const right = channels > 1 ? buffer.getChannelData(1) : left;
+
+            const sampleBlockSize = 1152;
+            const leftInt16 = new Int16Array(left.length);
+            const rightInt16 = new Int16Array(right.length);
+
+            for (let i = 0; i < left.length; i++) {
+                let sL = Math.max(-1, Math.min(1, left[i]));
+                leftInt16[i] = sL < 0 ? sL * 0x8000 : sL * 0x7FFF;
+                let sR = Math.max(-1, Math.min(1, right[i]));
+                rightInt16[i] = sR < 0 ? sR * 0x8000 : sR * 0x7FFF;
+            }
+
+            for (let i = 0; i < leftInt16.length; i += sampleBlockSize) {
+                const leftChunk = leftInt16.subarray(i, i + sampleBlockSize);
+                const rightChunk = rightInt16.subarray(i, i + sampleBlockSize);
+                let mp3buf = channels === 2 ? mp3encoder.encodeBuffer(leftChunk, rightChunk) : mp3encoder.encodeBuffer(leftChunk);
+                if (mp3buf.length > 0) mp3Data.push(mp3buf);
+            }
+            const mp3buf = mp3encoder.flush();
+            if (mp3buf.length > 0) mp3Data.push(mp3buf);
+
+            return new Blob(mp3Data, { type: 'audio/mp3' });
+        }
+    </script>
+</body>
+</html>

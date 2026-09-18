@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚶 자리 비움 알림이</title>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- 1. 설정 폼 화면 --- */
+        .setup-container {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            margin: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .setup-container h1 {
+            font-size: 1.6rem;
+            color: #0f172a;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .setup-container .subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #334155;
+        }
+
+        input[type="text"],
+        input[type="time"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-start:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* --- 2. 자리 비움 화면 (전체 화면 & 애니메이션) --- */
+        .display-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            
+            /* 그라데이션 애니메이션 배경 */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientAnimation 12s ease infinite;
+
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            padding: 50px 40px;
+            max-width: 800px;
+            width: 90%;
+            color: #ffffff;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* 일정 표시: 가장 큰 글자 크기 */
+        .display-schedule {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            word-break: keep-all;
+        }
+
+        .time-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .display-return-time {
+            font-size: 1.3rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .display-countdown {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800;
+            color: #fef08a;
+            letter-spacing: 1px;
+        }
+
+        .display-message {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            line-height: 1.6;
+            margin-top: 15px;
+            word-break: keep-all;
+        }
+
+        .btn-exit {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-exit:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 설정 화면 -->
+    <div class="setup-container" id="setupView">
+        <h1>🚶 자리 비움 알림 설정</h1>
+        <p class="subtitle">자리를 비우기 전 정보를 입력하세요.</p>
+
+        <form id="awayForm">
+            <div class="form-group">
+                <label for="inputSchedule">📌 일정 / 비움 사유</label>
+                <input type="text" id="inputSchedule" placeholder="예: 외부 미팅, 점심 식사, 회의 중" required>
+            </div>
+
+            <div class="form-group">
+                <label for="inputReturnTime">⏰ 복귀 예정 시간</label>
+                <input type="time" id="inputReturnTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="inputMessage">💬 기타 안내 문구 (선택)</label>
+                <input type="text" id="inputMessage" placeholder="예: 급한 연락은 010-XXXX-XXXX 로 연락 주세요.">
+            </div>
+
+            <button type="submit" class="btn-start">자리 비움 화면 켜기</button>
+        </form>
+    </div>
+
+    <!-- 2. 자리 비움 화면 (그라데이션 애니메이션 전체 화면) -->
+    <div class="display-container" id="displayView">
+        <button class="btn-exit" id="exitBtn">⚙️ 수정하기 (ESC)</button>
+        
+        <div class="glass-card">
+            <div class="badge">Away From Desk</div>
+            
+            <!-- 가장 큰 글씨의 일정 -->
+            <div class="display-schedule" id="outSchedule">점심 식사</div>
+
+            <div class="time-box">
+                <div class="display-return-time" id="outReturnTime">13:00 복귀 예정</div>
+                <div class="display-countdown" id="outCountdown">남은 시간 00분 00초</div>
+            </div>
+
+            <div class="display-message" id="outMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const setupView = document.getElementById('setupView');
+        const displayView = document.getElementById('displayView');
+        const awayForm = document.getElementById('awayForm');
+
+        const inputSchedule = document.getElementById('inputSchedule');
+        const inputReturnTime = document.getElementById('inputReturnTime');
+        const inputMessage = document.getElementById('inputMessage');
+
+        const outSchedule = document.getElementById('outSchedule');
+        const outReturnTime = document.getElementById('outReturnTime');
+        const outCountdown = document.getElementById('outCountdown');
+        const outMessage = document.getElementById('outMessage');
+        const exitBtn = document.getElementById('exitBtn');
+
+        let timerInterval = null;
+        let targetDateTime = null;
+
+        // 기본 복귀 시간을 현재 시간 + 30분으로 세팅
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 30);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        inputReturnTime.value = `${hours}:${minutes}`;
+
+        // 폼 제출 이벤트
+        awayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const scheduleVal = inputSchedule.value.trim();
+            const timeVal = inputReturnTime.value;
+            const msgVal = inputMessage.value.trim();
+
+            if (!scheduleVal || !timeVal) return;
+
+            // 목표 Date 객체 생성
+            const [targetHours, targetMinutes] = timeVal.split(':').map(Number);
+            targetDateTime = new Date();
+            targetDateTime.setHours(targetHours, targetMinutes, 0, 0);
+
+            // 입력 시간이 이미 지난 경우 (다음 날로 처리)
+            if (targetDateTime < new Date()) {
+                targetDateTime.setDate(targetDateTime.getDate() + 1);
+            }
+
+            // 화면에 값 주입
+            outSchedule.textContent = scheduleVal;
+            outReturnTime.textContent = `⏰ ${targetHours.toString().padStart(2, '0')}:${targetMinutes.toString().padStart(2, '0')} 복귀 예정`;
+            outMessage.textContent = msgVal ? `💬 ${msgVal}` : '';
+
+            // 화면 전환 및 타이머 시작
+            setupView.style.display = 'none';
+            displayView.style.display = 'flex';
+            
+            updateCountdown();
+            timerInterval = setInterval(updateCountdown, 1000);
+        });
+
+        // 카운트다운 계산 함수
+        function updateCountdown() {
+            const currentTime = new Date();
+            const diffMs = targetDateTime - currentTime;
+
+            if (diffMs <= 0) {
+                outCountdown.textContent = "⌛ 곧 복귀할 예정입니다!";
+                return;
+            }
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (hours > 0) {
+                outCountdown.textContent = `남은 시간 ${hours}시간 ${minutes}분 ${seconds}초`;
+            } else {
+                outCountdown.textContent = `남은 시간 ${minutes}분 ${seconds}초`;
+            }
+        }
+
+        // 복귀 화면 종료 함수
+        function exitDisplay() {
+            clearInterval(timerInterval);
+            displayView.style.display = 'none';
+            setupView.style.display = 'block';
+        }
+
+        exitBtn.addEventListener('click', exitDisplay);
+
+        // ESC 키로 종료
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && displayView.style.display === 'flex') {
+                exitDisplay();
+            }
+        });
+    </script>
+</body>
+</html>

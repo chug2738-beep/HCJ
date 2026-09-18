@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 실시간 글자 수 & 바이트 계산기</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e1e8ed;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #357abd;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-card.highlight {
+            background-color: #ebf8ff;
+            border-color: #bee3f8;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .unit {
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #64748b;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📝 글자 수 & 바이트 계산기</h1>
+        <p class="subtitle">한글(2 Byte) · 영문/숫자/공백(1 Byte) 기준</p>
+
+        <textarea id="textInput" placeholder="텍스트를 입력하거나 붙여넣으세요..."></textarea>
+
+        <div class="btn-group">
+            <button type="button" id="copyBtn" class="btn btn-primary">📋 전체 복사</button>
+            <button type="button" id="clearBtn" class="btn btn-secondary">🗑️ 내용 비우기</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">공백 포함 글자 수</div>
+                <div class="stat-value" id="charWithSpace">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">공백 제외 글자 수</div>
+                <div class="stat-value" id="charNoSpace">0</div>
+            </div>
+            <div class="stat-card highlight">
+                <div class="stat-label">공백 포함 용량 (Byte)</div>
+                <div class="stat-value" id="byteWithSpace">0 <span class="unit">B</span></div>
+            </div>
+            <div class="stat-card highlight">
+                <div class="stat-label">공백 제외 용량 (Byte)</div>
+                <div class="stat-value" id="byteNoSpace">0 <span class="unit">B</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const charWithSpace = document.getElementById('charWithSpace');
+        const charNoSpace = document.getElementById('charNoSpace');
+        const byteWithSpace = document.getElementById('byteWithSpace');
+        const byteNoSpace = document.getElementById('byteNoSpace');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // 바이트 계산 함수 (한글/전각문자 2 Byte, 영문/숫자/공백/ASCII 1 Byte)
+        function calculateBytes(str) {
+            let bytes = 0;
+            for (let i = 0; i < str.length; i++) {
+                const charCode = str.charCodeAt(i);
+                // ASCII 문자는 1 Byte (0~127), 한글 및 기타 유니코드는 2 Byte로 계산
+                if (charCode > 127) {
+                    bytes += 2;
+                } else {
+                    bytes += 1;
+                }
+            }
+            return bytes;
+        }
+
+        // 실시간 계산 업데이트
+        function updateCounts() {
+            const text = textInput.value;
+            const textWithoutSpace = text.replace(/\s/g, ''); // 공백/줄바꿈 제거
+
+            // 1. 글자 수 계산
+            charWithSpace.textContent = text.length.toLocaleString();
+            charNoSpace.textContent = textWithoutSpace.length.toLocaleString();
+
+            // 2. 바이트 수 계산 (한글 2Byte 적용)
+            const bWithSpace = calculateBytes(text);
+            const bNoSpace = calculateBytes(textWithoutSpace);
+
+            byteWithSpace.innerHTML = `${bWithSpace.toLocaleString()} <span class="unit">B</span>`;
+            byteNoSpace.innerHTML = `${bNoSpace.toLocaleString()} <span class="unit">B</span>`;
+        }
+
+        // 입력 이벤트 바인딩
+        textInput.addEventListener('input', updateCounts);
+
+        // 내용 비우기 버튼
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            updateCounts();
+            textInput.focus();
+        });
+
+        // 클립보드 복사 버튼
+        copyBtn.addEventListener('click', () => {
+            if (!textInput.value) {
+                alert('복사할 텍스트가 없습니다.');
+                return;
+            }
+            navigator.clipboard.writeText(textInput.value).then(() => {
+                alert('텍스트가 클립보드에 복사되었습니다.');
+            });
+        });
+    </script>
+</body>
+</html>

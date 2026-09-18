@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧩 PDF 파일 합치기 (병합기)</title>
+    <!-- pdf-lib CDN 라이브러리 -->
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #ef4444;
+            --primary-hover: #dc2626;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed #fca5a5;
+            background-color: #fef2f2;
+            border-radius: 14px;
+            padding: 35px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: #fee2e2;
+        }
+
+        .drop-zone p {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #991b1b;
+            margin-top: 10px;
+        }
+
+        .drop-zone span {
+            font-size: 0.8rem;
+            color: #7f1d1d;
+            display: block;
+            margin-top: 5px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* File List */
+        .file-list {
+            margin-top: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .file-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+            font-weight: 500;
+        }
+
+        .file-size {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-action {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-action.btn-del:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        /* Merge Button & Loading */
+        .btn-merge {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .btn-merge:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-merge:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🧩 PDF 파일 합치기</h1>
+        <p class="subtitle">여러 PDF 파일을 원하는 순서대로 하나의 문서로 병합하세요.</p>
+
+        <div class="drop-zone" id="dropZone">
+            <div style="font-size: 2.5rem;">📄</div>
+            <p>PDF 파일을 선택하거나 여기로 드래그하세요</p>
+            <span>다중 선택 가능 (.pdf)</span>
+            <input type="file" id="fileInput" accept=".pdf" multiple>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <button class="btn-merge" id="mergeBtn" disabled>PDF 병합 및 다운로드</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <span>PDF 파일을 합치는 중입니다...</span>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const mergeBtn = document.getElementById('mergeBtn');
+        const loading = document.getElementById('loading');
+
+        let selectedFiles = [];
+
+        // 업로드 영역 클릭 이벤트
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // 드래그 앤 드롭 이벤트
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                addFiles(e.dataTransfer.files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                addFiles(e.target.files);
+            }
+        });
+
+        // 파일 추가 처리
+        function addFiles(files) {
+            for (let file of files) {
+                if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                    selectedFiles.push(file);
+                }
+            }
+            renderFileList();
+            fileInput.value = ''; // 동일 파일 재업로드 지원
+        }
+
+        // 파일 목록 UI 렌더링
+        function renderFileList() {
+            fileList.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+                item.innerHTML = `
+                    <div class="file-info">
+                        <span style="font-weight:bold; color:var(--primary-color);">${index + 1}.</span>
+                        <div>
+                            <div class="file-name" title="${file.name}">${file.name}</div>
+                            <div class="file-size">${sizeMB} MB</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-action" onclick="moveFile(${index}, -1)" ${index === 0 ? 'disabled' : ''}>▲</button>
+                        <button class="btn-action" onclick="moveFile(${index}, 1)" ${index === selectedFiles.length - 1 ? 'disabled' : ''}>▼</button>
+                        <button class="btn-action btn-del" onclick="removeFile(${index})">✕</button>
+                    </div>
+                `;
+                fileList.appendChild(item);
+            });
+
+            // 최소 2개 이상일 때 병합 버튼 활성화
+            mergeBtn.disabled = selectedFiles.length < 2;
+            if (selectedFiles.length === 1) {
+                mergeBtn.textContent = "2개 이상의 PDF를 추가해주세요";
+            } else {
+                mergeBtn.textContent = `${selectedFiles.length}개의 PDF 병합 및 다운로드`;
+            }
+        }
+
+        // 순서 변경 함수
+        window.moveFile = function(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex >= 0 && targetIndex < selectedFiles.length) {
+                const temp = selectedFiles[index];
+                selectedFiles[index] = selectedFiles[targetIndex];
+                selectedFiles[targetIndex] = temp;
+                renderFileList();
+            }
+        };
+
+        // 파일 삭제 함수
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            renderFileList();
+        };
+
+        // PDF 병합 핵심 로직 (pdf-lib 사용)
+        mergeBtn.addEventListener('click', async () => {
+            if (selectedFiles.length < 2) return;
+
+            loading.style.display = 'block';
+            mergeBtn.disabled = true;
+
+            try {
+                // 1. 새로운 빈 PDF 문서 생성
+                const mergedPdf = await PDFLib.PDFDocument.create();
+
+                // 2. 선택된 파일들을 순서대로 읽어서 새 문서에 페이지 복사
+                for (let file of selectedFiles) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+                    copiedPages.forEach((page) => mergedPdf.addPage(page));
+                }
+
+                // 3. 병합된 PDF 바이트 데이터 생성
+                const pdfBytes = await mergedPdf.save();
+
+                // 4. Blob으로 만들어 다운로드 실행
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `merged_${new Date().getTime()}.pdf`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+
+            } catch (error) {
+                console.error(error);
+                alert('PDF 병합 중 오류가 발생했습니다. 암호가 걸려있거나 손상된 파일인지 확인하세요.');
+            } finally {
+                loading.style.display = 'none';
+                mergeBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

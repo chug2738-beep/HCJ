@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 서바이벌 구슬 추첨기 (마지막 구슬 당첨!)</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #f59e0b;
+            --text-color: #f8fafc;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            color: #fbbf24;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            flex: 1;
+            min-width: 280px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            background: #0f172a;
+            color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-launch {
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-launch:hover {
+            background-color: #d97706;
+            color: white;
+        }
+
+        .status-box {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.85rem;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-item {
+            padding: 4px 0;
+            border-bottom: 1px dashed #334155;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Canvas Game Board */
+        .canvas-container {
+            position: relative;
+            background: #111827;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Winner Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+        }
+
+        .winner-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #fbbf24;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .btn-close {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 서바이벌 구슬 추첨기</h1>
+    <p class="subtitle">대포에서 발사된 구슬 중 <b>가장 마지막에 떨어진 사람</b>이 최종 당첨!</p>
+
+    <div class="main-layout">
+        <!-- 설정 패널 -->
+        <div class="control-panel">
+            <div>
+                <label for="nameInput">👥 참가자 이름 (줄바꿈 구분)</label>
+                <textarea id="nameInput" placeholder="김철수&#10;이영희&#10;박민수&#10;정수진&#10;최동현"></textarea>
+            </div>
+
+            <button class="btn-launch" id="launchBtn">🚀 대포 발사!</button>
+
+            <label>📊 실시간 탈락/도착 순서</label>
+            <div class="status-box" id="statusBox">
+                <div style="color: #64748b; text-align: center;">추첨을 시작하세요</div>
+            </div>
+        </div>
+
+        <!-- 게임 화면 (Canvas) -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="500" height="600"></canvas>
+        </div>
+    </div>
+
+    <!-- 당첨자 알림 모달 -->
+    <div class="modal" id="winnerModal">
+        <div class="modal-content">
+            <div style="font-size: 3rem;">🎉</div>
+            <div style="font-size: 1.2rem; color: #94a3b8; margin-top: 10px;">최후의 승자 (최종 당첨)</div>
+            <div class="winner-name" id="winnerDisplay">홍길동</div>
+            <button class="btn-close" onclick="closeModal()">확인</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const nameInput = document.getElementById('nameInput');
+        const launchBtn = document.getElementById('launchBtn');
+        const statusBox = document.getElementById('statusBox');
+        const winnerModal = document.getElementById('winnerModal');
+        const winnerDisplay = document.getElementById('winnerDisplay');
+
+        const CANVAS_WIDTH = canvas.width;
+        const CANVAS_HEIGHT = canvas.height;
+
+        let balls = [];
+        let pegs = [];
+        let arrivedOrder = [];
+        let isRunning = false;
+        let cannonAngle = 0;
+
+        // 구슬 예쁜 색상 목록
+        const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
+
+        // 장애물(Pegs) 배치 생성
+        function createPegs() {
+            pegs = [];
+            const rows = 9;
+            const startY = 120;
+            const rowSpacing = 45;
+
+            for (let i = 0; i < rows; i++) {
+                const cols = (i % 2 === 0) ? 8 : 7;
+                const colSpacing = CANVAS_WIDTH / (cols + 1);
+                
+                for (let j = 0; j < cols; j++) {
+                    pegs.push({
+                        x: colSpacing * (j + 1),
+                        y: startY + i * rowSpacing,
+                        radius: 7
+                    });
+                }
+            }
+        }
+
+        // 구슬 클래스
+        class Ball {
+            constructor(name, index, total) {
+                this.name = name;
+                this.x = CANVAS_WIDTH / 2;
+                this.y = 40;
+                this.radius = 12;
+                // 약간의 난수를 부여해 대포 발사
+                const angle = (Math.random() - 0.5) * 0.8;
+                const speed = Math.random() * 3 + 2;
+                this.vx = Math.sin(angle) * speed;
+                this.vy = Math.cos(angle) * speed;
+                this.color = colors[index % colors.length];
+                this.arrived = false;
+            }
+
+            update() {
+                if (this.arrived) return;
+
+                // 중력 및 마찰
+                this.vy += 0.15; // 중력
+                this.vx *= 0.99; // 공기 저항
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // 벽 충돌 (좌우)
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx *= -0.7;
+                } else if (this.x + this.radius > CANVAS_WIDTH) {
+                    this.x = CANVAS_WIDTH - this.radius;
+                    this.vx *= -0.7;
+                }
+
+                // 장애물(Peg) 충돌 처리
+                pegs.forEach(peg => {
+                    const dx = this.x - peg.x;
+                    const dy = this.y - peg.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < this.radius + peg.radius) {
+                        // 충돌 반사각 계산
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+                        const kx = this.vx;
+                        const ky = this.vy;
+                        const p = 2 * (kx * nx + ky * ny);
+
+                        this.vx = (kx - p * nx) * 0.65;
+                        this.vy = (ky - p * ny) * 0.65;
+
+                        // 중첩 해제
+                        const overlap = (this.radius + peg.radius) - dist;
+                        this.x += nx * overlap;
+                        this.y += ny * overlap;
+                    }
+                });
+
+                // 끼임 방지 (속도가 너무 느릴 때 강제 아래 밀기)
+                if (Math.abs(this.vy) < 0.2 && this.y < CANVAS_HEIGHT - 50) {
+                    this.vy += 0.5;
+                    this.vx += (Math.random() - 0.5) * 1;
+                }
+
+                // 바닥 도착 판단
+                if (this.y + this.radius >= CANVAS_HEIGHT - 30) {
+                    this.arrived = true;
+                    this.y = CANVAS_HEIGHT - 30;
+                    this.vx = 0;
+                    this.vy = 0;
+                    arrivedOrder.push(this);
+                    updateStatusList();
+                }
+            }
+
+            draw() {
+                // 구슬 그리기
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+
+                // 이름 표기
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.name, this.x, this.y - this.radius - 4);
+            }
+        }
+
+        // 실시간 도착 상태 업데이트
+        function updateStatusList() {
+            statusBox.innerHTML = '';
+            arrivedOrder.forEach((ball, idx) => {
+                const item = document.createElement('div');
+                item.className = 'status-item';
+                item.innerHTML = `<span>${idx + 1}등 도착</span> <b>${ball.name}</b>`;
+                statusBox.appendChild(item);
+            });
+            statusBox.scrollTop = statusBox.scrollHeight;
+        }
+
+        // 대포 그리기
+        function drawCannon() {
+            ctx.save();
+            ctx.translate(CANVAS_WIDTH / 2, 25);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(-15, -15, 30, 30);
+            ctx.restore();
+        }
+
+        // 바닥 도착선 그리기
+        function drawFinishLine() {
+            ctx.beginPath();
+            ctx.moveTo(0, CANVAS_HEIGHT - 30);
+            ctx.lineTo(CANVAS_WIDTH, CANVAS_HEIGHT - 30);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 메인 게임 루프
+        function animate() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // 1. 장애물 그리기
+            pegs.forEach(peg => {
+                ctx.beginPath();
+                ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.shadowColor = '#0284c7';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.closePath();
+            });
+
+            // 2. 바닥선 및 대포
+            drawFinishLine();
+            drawCannon();
+
+            // 3. 구슬 업데이트 및 그리기
+            let allArrived = true;
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+                if (!ball.arrived) allArrived = false;
+            });
+
+            if (isRunning) {
+                if (allArrived && balls.length > 0) {
+                    isRunning = false;
+                    launchBtn.disabled = false;
+
+                    // 가장 마지막 도착한 구슬(최종 당첨자)
+                    const winner = arrivedOrder[arrivedOrder.length - 1];
+                    setTimeout(() => {
+                        winnerDisplay.textContent = winner.name;
+                        winnerModal.style.display = 'flex';
+                    }, 500);
+                } else {
+                    requestAnimationFrame(animate);
+                }
+            }
+        }
+
+        // 대포 발사 실행
+        launchBtn.addEventListener('click', () => {
+            const rawNames = nameInput.value.split('\n').map(n => n.trim()).filter(n => n !== '');
+
+            if (rawNames.length < 2) {
+                alert('최소 2명 이상의 이름을 입력하세요!');
+                return;
+            }
+
+            launchBtn.disabled = true;
+            arrivedOrder = [];
+            balls = [];
+            statusBox.innerHTML = '';
+            createPegs();
+
+            // 구슬을 0.2초 간격으로 대포에서 연속 발사
+            rawNames.forEach((name, idx) => {
+                setTimeout(() => {
+                    balls.push(new Ball(name, idx, rawNames.length));
+                }, idx * 250);
+            });
+
+            isRunning = true;
+            animate();
+        });
+
+        function closeModal() {
+            winnerModal.style.display = 'none';
+        }
+
+        // 초기 렌더링
+        createPegs();
+        animate();
+    </script>
+</body>
+</html>
+
+</html>

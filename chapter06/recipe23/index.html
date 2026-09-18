@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 속성으로 보는 오늘의 운세</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --bg-color: #f0f3f8;
+            --card-bg: #ffffff;
+            --text-color: #2d3436;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-size: 1.6rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .element-btn {
+            padding: 10px 5px;
+            border: 1px solid #dfe6e9;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .element-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .element-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #5b4bc4;
+        }
+
+        .result-card {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            border-left: 5px solid var(--primary-color);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .result-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #636e72;
+        }
+
+        .score {
+            margin-top: 12px;
+            font-weight: bold;
+            color: #e17055;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 15px auto 0;
+            background: none;
+            border: none;
+            color: #b2bec3;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔮 원소로 보는 오늘의 운세</h1>
+        
+        <form id="fortuneForm">
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" placeholder="이름을 입력하세요" required>
+            </div>
+
+            <div class="form-group">
+                <label for="birthday">생년월일</label>
+                <input type="date" id="birthday" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <select id="gender" required>
+                    <option value="" disabled selected>성별을 선택하세요</option>
+                    <option value="남성">남성</option>
+                    <option value="여성">여성</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>속성 선택</label>
+                <div class="element-grid">
+                    <button type="button" class="element-btn" data-element="불">🔥 불</button>
+                    <button type="button" class="element-btn" data-element="물">💧 물</button>
+                    <button type="button" class="element-btn" data-element="나무">🪵 나무</button>
+                    <button type="button" class="element-btn" data-element="땅">🌍 땅</button>
+                    <button type="button" class="element-btn" data-element="바람">🌬️ 바람</button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">운세 보기</button>
+        </form>
+
+        <div id="resultCard" class="result-card">
+            <div class="result-title" id="resultHeader"></div>
+            <p class="result-text" id="resultBody"></p>
+            <div class="score" id="resultScore"></div>
+            <button type="button" class="reset-btn" id="resetBtn">다시 하기</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('fortuneForm');
+        const elementBtns = document.querySelectorAll('.element-btn');
+        const resultCard = document.getElementById('resultCard');
+        const resultHeader = document.getElementById('resultHeader');
+        const resultBody = document.getElementById('resultBody');
+        const resultScore = document.getElementById('resultScore');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let selectedElement = '';
+
+        // 운세 데이터베이스
+        const fortunes = {
+            '불': [
+                "열정이 넘치는 하루입니다! 망설이던 일이 있다면 오늘 도전해보세요. 강력한 에너지로 추진력을 얻을 수 있습니다.",
+                "지나친 승부욕은 화를 부를 수 있습니다. 열정은 유지하되 주변 사람들의 의견에도 귀를 기울이세요.",
+                "새로운 아이디어가 번뜩이는 날입니다. 생각에만 그치지 말고 바로 행동으로 옮겨보세요."
+            ],
+            '물': [
+                "유연한 사고가 필요한 날입니다. 어떤 장애물이 찾아와도 유연하게 대처하면 큰 성과를 거둘 것입니다.",
+                "감정 기복이 생길 수 있으니 마음의 평정을 찾는 것이 중요합니다. 따뜻한 차 한 잔과 함께 휴식을 취하세요.",
+                "지혜로운 판단력이 돋보이는 하루입니다. 고민하던 문제의 해결책을 쉽게 찾을 수 있습니다."
+            ],
+            '나무': [
+                "꾸준함이 빛을 발하는 날입니다. 그동안 노력해온 일들이 조금씩 결실을 맺기 시작합니다.",
+                "성장의 기회가 찾아옵니다. 자신을 믿고 한 단계 더 뛰어올라 보세요.",
+                "주변 사람들에게 따뜻한 그늘이 되어주세요. 선행이 더 큰 행운이 되어 돌아옵니다."
+            ],
+            '땅': [
+                "안정적이고 평온한 하루입니다. 차분하게 계획을 점검하고 단단한 기반을 다지기 좋은 날입니다.",
+                "재물운이 상승하는 기운이 있습니다. 불필요한 지출을 줄이면 뜻밖의 이득을 얻을 수 있습니다.",
+                "신뢰를 쌓기에 최적의 날입니다. 약속을 잘 지키고 정직하게 행동하면 좋은 평가를 받습니다."
+            ],
+            '바람': [
+                "새로운 변화와 소식이 찾아오는 날입니다. 마음을 열고 새로운 가능성을 받아들여 보세요.",
+                "답답했던 일들이 시원하게 풀릴 징조입니다. 가벼운 마음으로 하루를 즐겨보세요.",
+                "자유로운 크리에이티브한 영감이 솟구칩니다. 예술 활동이나 창의적인 작업에 매우 유리합니다."
+            ]
+        };
+
+        // 속성 버튼 클릭 이벤트
+        elementBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elementBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedElement = btn.dataset.element;
+            });
+        });
+
+        // 폼 제출 이벤트
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!selectedElement) {
+                alert('속성을 선택해 주세요!');
+                return;
+            }
+
+            const name = document.getElementById('name').value;
+            const gender = document.getElementById('gender').value;
+
+            // 해당 속성의 운세 중 무작위 선택
+            const elementFortunes = fortunes[selectedElement];
+            const randomFortune = elementFortunes[Math.floor(Math.random() * elementFortunes.length)];
+            const randomScore = Math.floor(Math.random() * 31) + 70; // 70~100점 무작위
+
+            // 결과 출력
+            resultHeader.innerText = `${name} 님의 [${selectedElement}] 운세`;
+            resultBody.innerText = randomFortune;
+            resultScore.innerText = `🍀 오늘의 행운 지수: ${randomScore}점`;
+
+            form.style.display = 'none';
+            resultCard.style.display = 'block';
+        });
+
+        // 다시 하기 버튼
+        resetBtn.addEventListener('click', () => {
+            form.reset();
+            elementBtns.forEach(b => b.classList.remove('selected'));
+            selectedElement = '';
+            resultCard.style.display = 'none';
+            form.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
